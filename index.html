@@ -1691,7 +1691,7 @@ async function deepLetter(){
     平均强度: Math.round(itSum / week.length * 10) / 10
   };
   box.hidden = false;
-  box.textContent = '';
+  box.textContent = '潮水正在汇聚，请稍候…';
   try{
     const models = await cloud.llm.models.list();
     const model = (models || []).find(m=> m.disabled !== true);
