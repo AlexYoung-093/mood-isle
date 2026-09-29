@@ -3,251 +3,474 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#FF8A65">
-<title>心屿 · 情绪日记</title>
+<meta name="theme-color" content="#F5F0E8">
+<title>心屿 · 情绪手帖</title>
 <style>
-  :root{
-    --bg:#FFF9F2; --card:#FFFFFF; --ink:#3D3A38; --sub:#9A928C;
-    --primary:#FF8A65; --primary-deep:#F0643C; --line:#F0E6DC;
-    --c-joy:#F7C948; --c-calm:#7CB342; --c-sad:#5C9DFF; --c-anx:#F2994A; --c-angry:#EB5757;
-    --radius:18px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
-    background:var(--bg); color:var(--ink); min-height:100vh;
-  }
-  /* ---------- header ---------- */
-  header{
-    max-width:480px;margin:0 auto;padding:22px 20px 6px;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .logo{display:flex;align-items:center;gap:10px}
-  .logo .mark{font-size:26px}
-  .logo h1{font-size:21px;letter-spacing:1px}
-  .logo p{font-size:11px;color:var(--sub)}
-  header .days{
-    background:#fff;border:1px solid var(--line);border-radius:999px;
-    padding:5px 12px;font-size:12px;color:var(--primary-deep);font-weight:600;
-  }
-  main{max-width:480px;margin:0 auto;padding:10px 16px 96px}
-  /* ---------- card ---------- */
-  .card{
-    background:var(--card);border-radius:var(--radius);padding:16px;
-    box-shadow:0 4px 18px rgba(240,180,140,.10);margin-bottom:14px;
-  }
-  .sec-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-  .sec-title .step{
-    width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;
-    font-size:11px;display:flex;align-items:center;justify-content:center;flex:none;
-  }
-  .sec-title small{font-weight:400;color:var(--sub);font-size:11px;margin-left:auto}
-  /* ---------- emotion grid ---------- */
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .tag{
-    border:1.5px solid var(--line);border-radius:14px;padding:10px 4px;text-align:center;
-    font-size:12.5px;cursor:pointer;background:#fff;transition:.15s;line-height:1.35;
-  }
-  .tag .em{display:block;font-size:20px;margin-bottom:2px}
-  .tag.on{color:#fff;border-color:transparent;transform:scale(1.04)}
-  /* ---------- intensity ---------- */
-  .int-row{display:flex;align-items:center;gap:12px}
-  .int-face{font-size:34px;width:44px;text-align:center;flex:none}
-  input[type=range]{flex:1;appearance:none;height:8px;border-radius:99px;
-    background:linear-gradient(90deg,#FFD9A0,#FF8A65,#EB5757);outline:none}
-  input[type=range]::-webkit-slider-thumb{
-    appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;
-    border:3px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
-  .int-label{font-size:12px;color:var(--sub);margin-top:8px;text-align:right}
-  .int-label b{color:var(--primary-deep)}
-  /* ---------- chips ---------- */
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{
-    padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);
-    font-size:12.5px;cursor:pointer;background:#fff;transition:.15s;color:#6B645E;
-  }
-  .chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
-  /* ---------- note & save ---------- */
-  .note input{
-    width:100%;border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;
-    font-size:14px;outline:none;background:#FFFBF7;color:var(--ink);
-  }
-  .note input:focus{border-color:var(--primary)}
-  .save-btn{
-    width:100%;border:none;border-radius:16px;padding:15px;font-size:16px;font-weight:700;
-    color:#fff;background:linear-gradient(135deg,#FF8A65,#F0643C);cursor:pointer;
-    box-shadow:0 6px 18px rgba(240,100,60,.30);letter-spacing:2px;margin-top:4px;
-  }
-  .save-btn:active{transform:scale(.98)}
-  .breath-link{
-    text-align:center;font-size:12.5px;color:var(--sub);margin-top:12px;cursor:pointer;
-  }
-  .breath-link b{color:var(--primary-deep)}
-  /* ---------- today list ---------- */
-  .today-item{
-    display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px dashed var(--line);
-    font-size:13px;
-  }
-  .today-item:last-child{border-bottom:none}
-  .dot{width:10px;height:10px;border-radius:50%;flex:none}
-  .today-item .t{color:var(--sub);margin-left:auto;font-size:11.5px}
-  .empty{font-size:12.5px;color:var(--sub);text-align:center;padding:14px 0}
-  /* ---------- review page ---------- */
-  .seg{display:flex;background:#F5EDE4;border-radius:12px;padding:3px;margin-bottom:14px}
-  .seg button{
-    flex:1;border:none;background:transparent;padding:8px;border-radius:10px;
-    font-size:13px;color:var(--sub);cursor:pointer;font-weight:600;
-  }
-  .seg button.on{background:#fff;color:var(--primary-deep);box-shadow:0 2px 6px rgba(0,0,0,.06)}
-  .month-bar{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:10px}
-  .month-bar b{font-size:15px}
-  .month-bar button{
-    width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;
-    color:var(--sub);font-size:14px;cursor:pointer;
-  }
-  .week-bar{height:14px;border-radius:99px;overflow:hidden;display:flex;background:#F5EDE4;margin:4px 0 8px}
-  .legend{display:flex;gap:12px;font-size:11px;color:var(--sub);flex-wrap:wrap}
-  .legend i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px}
-  /* calendar */
-  .cal-head{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;
-    font-size:11px;color:var(--sub);margin-bottom:6px}
-  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-  .cell{
-    aspect-ratio:1/1.05;border-radius:12px;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;font-size:12.5px;cursor:pointer;
-    background:#FFF4EA;color:#B9AFA7;position:relative;
-  }
-  .cell.dim{visibility:hidden}
-  .cell.has{color:#fff;font-weight:700}
-  .cell.today{outline:2px solid var(--primary);outline-offset:-2px}
-  .cell.sel{transform:scale(1.06);box-shadow:0 3px 10px rgba(0,0,0,.15)}
-  .day-detail{margin-top:12px}
-  /* timeline */
-  .tl-item{
-    background:#fff;border-radius:16px;padding:14px 14px 12px;margin-bottom:10px;
-    border-left:5px solid #ddd;box-shadow:0 3px 12px rgba(240,180,140,.10);position:relative;
-  }
-  .tl-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-  .tl-top .em{font-size:22px}
-  .tl-top b{font-size:14.5px}
-  .tl-top .stars{color:var(--primary);font-size:12px;letter-spacing:1px}
-  .tl-top .del{
-    margin-left:auto;color:#C9C0B8;font-size:16px;cursor:pointer;padding:2px 6px;
-  }
-  .tl-note{font-size:13px;color:#6B645E;line-height:1.55;word-break:break-all}
-  .tl-trig{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .tl-trig span{font-size:10.5px;background:#F5EDE4;color:#8A7F75;border-radius:99px;padding:3px 9px}
-  .tl-time{font-size:10.5px;color:#C0B7AE;margin-top:7px}
-  /* ---------- tabbar ---------- */
-  .tabbar{
-    position:fixed;left:0;right:0;bottom:0;z-index:50;
-    background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
-    border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
-  }
-  .tabbar .inner{max-width:480px;margin:0 auto;display:flex}
-  .tabbar button{
-    flex:1;border:none;background:none;padding:11px 0 9px;cursor:pointer;
-    font-size:11px;color:#B4AAA1;display:flex;flex-direction:column;align-items:center;gap:2px;
-  }
-  .tabbar button .ic{font-size:21px}
-  .tabbar button.on{color:var(--primary-deep);font-weight:700}
-  /* ---------- breath overlay ---------- */
-  .overlay{
-    position:fixed;inset:0;background:rgba(61,58,56,.55);backdrop-filter:blur(6px);
-    z-index:100;display:flex;align-items:center;justify-content:center;
-  }
-  .breath-box{background:#fff;border-radius:26px;padding:30px 26px;width:88%;max-width:360px;text-align:center}
-  .breath-box h3{font-size:17px;margin-bottom:4px}
-  .breath-box .hint{font-size:12px;color:var(--sub);margin-bottom:20px}
-  .circle-wrap{height:150px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-  .circle{
-    width:80px;height:80px;border-radius:50%;
-    background:radial-gradient(circle at 35% 30%,#FFB499,#FF8A65);
-    transition:transform 1s linear;display:flex;align-items:center;justify-content:center;
-    color:#fff;font-size:14px;font-weight:700;text-align:center;line-height:1.4;
-  }
-  .breath-stat{font-size:12.5px;color:var(--sub);margin-bottom:18px}
-  .breath-acts{display:flex;gap:10px}
-  .btn-ghost,.btn-fill{
-    flex:1;border-radius:13px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;
-  }
-  .btn-ghost{background:#F5EDE4;color:#6B645E}
-  .btn-fill{background:linear-gradient(135deg,#FF8A65,#F0643C);color:#fff}
-  /* ---------- suggest card ---------- */
-  .suggest{
-    background:linear-gradient(135deg,#FFF3E9,#FFE4D6);border-radius:16px;padding:14px;
-    margin-top:12px;display:flex;align-items:center;gap:10px;
-  }
-  .suggest .txt{font-size:13px;line-height:1.5;flex:1}
-  .suggest .txt b{color:var(--primary-deep)}
-  .suggest button{
-    border:none;border-radius:11px;padding:9px 14px;background:var(--primary-deep);
-    color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;flex:none;
-  }
-  /* ---------- hotline ---------- */
-  .hotline{
-    text-align:center;font-size:11px;color:#B4AAA1;margin-top:6px;line-height:1.7;
-  }
-  .hotline a{color:#8A7F75;text-decoration:none;font-weight:600}
-  /* ---------- toast ---------- */
-  #toast{
-    position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);
-    background:rgba(61,58,56,.9);color:#fff;font-size:13px;padding:11px 20px;
-    border-radius:99px;opacity:0;pointer-events:none;transition:.3s;z-index:200;white-space:nowrap;
-  }
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  [hidden]{display:none!important}
+/* ============================================================
+   心屿 v0.2「纸上潮汐」
+   纸为底 · 墨为字 · 朱砂为印 · 潮为动
+   ============================================================ */
+:root{
+  --paper:#F5F0E8; --paper-deep:#EFE8DB;
+  --ink:#26221C; --ink-60:rgba(38,34,28,.6); --ink-38:rgba(38,34,28,.38);
+  --hairline:rgba(38,34,28,.16); --hairline-soft:rgba(38,34,28,.09);
+  --vermilion:#C04531;                       /* 朱砂 · 全站唯一强调色 */
+  --c-joy:#D9A441; --c-calm:#6E7F5C; --c-sad:#5B6B7C; --c-anx:#B26A38; --c-angry:#9E3D34;
+  --serif:"Songti SC","STSong","Noto Serif SC","Noto Serif CJK SC","Source Han Serif SC",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-ink:cubic-bezier(.65,0,.35,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);background:var(--paper);color:var(--ink);
+  min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--vermilion);color:var(--paper)}
+
+/* ---------- 纸粒肌理 ---------- */
+.grain{
+  position:fixed;inset:-50%;width:200%;height:200%;pointer-events:none;z-index:900;
+  opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- 竖排批注 ---------- */
+.vtext{writing-mode:vertical-rl;letter-spacing:.35em;font-family:var(--serif)}
+
+/* ---------- 页首 ---------- */
+header{max-width:480px;margin:0 auto;padding:30px 24px 0}
+.brand{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.brand-main{display:flex;align-items:flex-start;gap:14px}
+.brand-side{
+  font-size:10px;color:var(--ink-38);padding-top:6px;
+  border-left:1px solid var(--hairline);padding-left:10px;height:64px;
+}
+.brand h1{
+  font-family:var(--serif);font-weight:700;font-size:44px;line-height:1;
+  letter-spacing:.12em;
+}
+.brand .sub{
+  margin-top:10px;font-size:12px;color:var(--ink-60);letter-spacing:.18em;
+  font-family:var(--serif);
+}
+.seal-days{
+  flex:none;border:1px solid var(--hairline);padding:8px 10px;text-align:center;
+  font-family:var(--serif);color:var(--ink-60);font-size:10px;letter-spacing:.2em;
+  transition:border-color .3s;
+}
+.seal-days b{
+  display:block;font-size:20px;color:var(--vermilion);font-weight:700;
+  letter-spacing:0;margin:2px 0;font-variant-numeric:tabular-nums;
+}
+
+/* ---------- 潮汐画布 ---------- */
+.tide-wrap{width:100vw;margin-left:calc(50% - 50vw);margin-top:18px;position:relative}
+#tide{display:block;width:100%;height:150px}
+.tide-cap{
+  position:absolute;right:max(24px,calc(50% - 240px + 24px));bottom:10px;
+  font-size:10px;color:var(--ink-38);letter-spacing:.3em;font-family:var(--serif);
+}
+
+/* ---------- 主体 ---------- */
+main{max-width:480px;margin:0 auto;padding:8px 24px 120px}
+#page-record,#page-review{animation:pageIn .5s var(--ease-out)}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* 章节头：竖排编号 + 发丝线 */
+.sec{margin-top:38px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.sec-no{
+  font-family:var(--serif);font-size:11px;color:var(--vermilion);
+  letter-spacing:.3em;flex:none;
+}
+.sec-title{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:.14em}
+.sec-hint{margin-left:auto;font-size:10.5px;color:var(--ink-38);letter-spacing:.1em}
+.sec-rule{height:1px;background:var(--hairline);margin:-8px 0 18px}
+
+/* 滚动浮现 */
+.rise{opacity:0;transform:translateY(14px);transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
+.rise.in{opacity:1;transform:none}
+
+/* ---------- 情绪手风琴 ---------- */
+.emo-cat{border-top:1px solid var(--hairline)}
+.emo-cat:last-child{border-bottom:1px solid var(--hairline)}
+.cat-row{
+  display:flex;align-items:center;gap:14px;padding:15px 2px;cursor:pointer;
+  transition:padding .3s var(--ease-out);
+}
+.cat-row:hover{padding-left:8px}
+.cat-zi{
+  font-family:var(--serif);font-size:21px;font-weight:700;width:52px;flex:none;
+  letter-spacing:.1em;
+}
+.cat-tide{font-size:10.5px;color:var(--ink-38);letter-spacing:.22em;font-family:var(--serif)}
+.cat-wave{margin-left:auto;flex:none;opacity:.85;transition:transform .4s var(--ease-out)}
+.emo-cat.open .cat-wave{transform:rotate(180deg)}
+.cat-body{
+  overflow:hidden;max-height:0;transition:max-height .55s var(--ease-ink);
+}
+.tag-list{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;padding:2px 0 16px}
+.tag-item{
+  position:relative;padding:12px 4px 12px 18px;cursor:pointer;
+  font-family:var(--serif);font-size:16px;letter-spacing:.12em;color:var(--ink-60);
+  border-top:1px dashed var(--hairline-soft);
+  transition:color .25s,background .25s,padding .25s var(--ease-out);
+}
+.tag-item::before{
+  content:"";position:absolute;left:2px;top:50%;width:5px;height:5px;border-radius:50%;
+  background:var(--ink-38);transform:translateY(-50%);transition:.25s;
+}
+.tag-item:hover{color:var(--ink)}
+.tag-item.on{
+  color:var(--paper);background:var(--ink);padding-left:24px;
+}
+.tag-item.on::before{background:var(--vermilion);left:10px}
+
+/* ---------- 潮汐标尺（强度） ---------- */
+.ruler{position:relative;padding:6px 0 0;user-select:none;touch-action:none}
+#rulerSvg{display:block;width:100%;height:74px;cursor:pointer}
+.ruler-word{
+  display:flex;align-items:baseline;justify-content:space-between;margin-top:6px;
+}
+.ruler-word .name{font-family:var(--serif);font-size:17px;letter-spacing:.2em;font-weight:700}
+.ruler-word .name em{font-style:normal;color:var(--vermilion)}
+.ruler-word .scale{font-size:10px;color:var(--ink-38);letter-spacing:.15em}
+
+/* ---------- 触发因素 · 批注签 ---------- */
+.trigs{display:flex;flex-wrap:wrap;gap:9px}
+.trig{
+  border:1px solid var(--hairline);padding:7px 13px;font-size:12px;color:var(--ink-60);
+  cursor:pointer;letter-spacing:.08em;background:transparent;
+  transition:all .25s var(--ease-out);
+}
+.trig:hover{border-color:var(--ink-38)}
+.trig.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.note-line{margin-top:20px;position:relative}
+.note-line input{
+  width:100%;border:none;border-bottom:1px solid var(--hairline);background:transparent;
+  padding:10px 2px;font-size:14.5px;color:var(--ink);outline:none;font-family:var(--serif);
+  letter-spacing:.05em;transition:border-color .3s;
+}
+.note-line input::placeholder{color:var(--ink-38)}
+.note-line input:focus{border-color:var(--vermilion)}
+.note-line .char{position:absolute;right:0;top:-14px;font-size:9.5px;color:var(--ink-38);letter-spacing:.1em}
+
+/* ---------- 朱印保存 ---------- */
+.seal-btn{
+  margin-top:36px;width:100%;border:1.5px solid var(--vermilion);background:transparent;
+  color:var(--vermilion);padding:17px 0;cursor:pointer;position:relative;overflow:hidden;
+  font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.5em;text-indent:.5em;
+  transition:color .35s var(--ease-out),transform .12s;
+}
+.seal-btn::before{
+  content:"";position:absolute;inset:0;background:var(--vermilion);
+  transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease-ink);z-index:-1;
+}
+.seal-btn:hover{color:var(--paper)}
+.seal-btn:hover::before{transform:scaleX(1)}
+.seal-btn:active{transform:scale(.975)}
+.seal-btn.stamp{animation:stamp .5s var(--ease-out)}
+@keyframes stamp{0%{transform:scale(1)}35%{transform:scale(.94)}70%{transform:scale(1.015)}100%{transform:scale(1)}}
+
+/* ---------- 呼吸建议（发丝线告示） ---------- */
+.suggest{
+  margin-top:22px;border:1px solid var(--hairline);padding:16px 16px 14px;position:relative;
+  animation:pageIn .5s var(--ease-out);
+}
+.suggest .corner{
+  position:absolute;top:-1px;left:-1px;background:var(--vermilion);color:var(--paper);
+  font-family:var(--serif);font-size:10px;padding:4px 8px;letter-spacing:.25em;
+}
+.suggest p{font-size:12.5px;color:var(--ink-60);line-height:1.8;padding-left:2px}
+.suggest p b{color:var(--ink);font-weight:600}
+.suggest .go{
+  margin-top:12px;border:none;background:none;color:var(--vermilion);cursor:pointer;
+  font-family:var(--serif);font-size:13px;letter-spacing:.2em;padding:0;
+  border-bottom:1px solid var(--vermilion);padding-bottom:2px;
+}
+
+/* ---------- 自由呼吸入口 ---------- */
+.breath-link{
+  margin-top:24px;text-align:center;font-size:12px;color:var(--ink-38);cursor:pointer;
+  letter-spacing:.12em;transition:color .3s;
+}
+.breath-link:hover{color:var(--ink)}
+.breath-link b{
+  color:var(--ink-60);font-weight:400;font-family:var(--serif);
+  border-bottom:1px solid var(--hairline);padding-bottom:2px;transition:.3s;
+}
+.breath-link:hover b{color:var(--vermilion);border-color:var(--vermilion)}
+
+/* ---------- 今日记录 ---------- */
+.today-row{
+  display:flex;align-items:baseline;gap:12px;padding:11px 2px;
+  border-bottom:1px dashed var(--hairline-soft);font-size:13px;
+  animation:pageIn .4s var(--ease-out);
+}
+.today-row:last-child{border-bottom:none}
+.today-row .dot{width:7px;height:7px;border-radius:50%;flex:none;transform:translateY(-1px)}
+.today-row .tg{font-family:var(--serif);font-size:14.5px;letter-spacing:.1em}
+.today-row .wv{font-size:10.5px;color:var(--ink-38);letter-spacing:.1em}
+.today-row .t{margin-left:auto;font-size:11px;color:var(--ink-38);font-variant-numeric:tabular-nums}
+.empty{
+  font-size:12px;color:var(--ink-38);text-align:center;padding:18px 0;
+  letter-spacing:.15em;font-family:var(--serif);
+}
+
+/* ---------- 热线 ---------- */
+.hotline{
+  margin-top:44px;padding-top:18px;border-top:1px solid var(--hairline-soft);
+  text-align:center;font-size:10.5px;color:var(--ink-38);line-height:2;letter-spacing:.08em;
+}
+.hotline a{color:var(--ink-60);text-decoration:none;border-bottom:1px solid var(--hairline);font-variant-numeric:tabular-nums}
+
+/* ---------- 回顾页 ---------- */
+.seg{display:flex;gap:26px;margin-top:34px;border-bottom:1px solid var(--hairline)}
+.seg button{
+  border:none;background:none;padding:0 2px 12px;cursor:pointer;position:relative;
+  font-family:var(--serif);font-size:15px;letter-spacing:.25em;color:var(--ink-38);
+  transition:color .3s;
+}
+.seg button.on{color:var(--ink);font-weight:700}
+.seg button::after{
+  content:"";position:absolute;left:0;right:100%;bottom:-1px;height:2px;background:var(--vermilion);
+  transition:right .4s var(--ease-ink);
+}
+.seg button.on::after{right:0}
+
+.month-bar{display:flex;align-items:baseline;justify-content:center;gap:22px;margin:26px 0 4px}
+.month-bar b{
+  font-family:var(--serif);font-size:24px;font-weight:700;letter-spacing:.12em;
+  font-variant-numeric:tabular-nums;min-width:150px;text-align:center;
+}
+.month-bar button{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--hairline);background:none;
+  color:var(--ink-60);font-size:15px;cursor:pointer;transition:.3s;align-self:center;
+}
+.month-bar button:hover{border-color:var(--vermilion);color:var(--vermilion)}
+
+/* 近 7 日潮色 */
+.week-wrap{margin:14px 0 6px}
+.week-cap{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-38);letter-spacing:.2em;margin-bottom:8px;font-family:var(--serif)}
+.week-bar{height:8px;display:flex;background:var(--paper-deep);overflow:hidden}
+.week-bar div{transition:width .8s var(--ease-out)}
+.legend{display:flex;gap:14px;font-size:10px;color:var(--ink-38);flex-wrap:wrap;margin-top:10px;letter-spacing:.1em}
+.legend i{width:8px;height:8px;display:inline-block;margin-right:5px;transform:translateY(1px)}
+
+/* 潮汐表日历 */
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;
+  font-size:10px;color:var(--ink-38);margin:18px 0 8px;letter-spacing:.2em;font-family:var(--serif)}
+.cal{grid-template-columns:repeat(7,1fr);display:grid}
+.cell{
+  aspect-ratio:1/1.08;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;gap:4px;
+}
+.cell.dim{visibility:hidden}
+.cell .num{
+  font-size:12.5px;color:var(--ink-38);font-variant-numeric:tabular-nums;
+  transition:color .3s;position:relative;z-index:1;
+}
+.cell.has .num{color:var(--ink);font-weight:600}
+.cell.today .num{color:var(--vermilion);font-weight:700}
+.cell.today::before{
+  content:"";position:absolute;top:6%;left:50%;transform:translateX(-50%);
+  width:24px;height:24px;border:1px solid var(--vermilion);border-radius:50%;
+}
+.cell.sel .num{color:var(--paper);font-weight:700}
+.cell.sel::after{
+  content:"";position:absolute;top:5.5%;left:50%;transform:translateX(-50%);
+  width:26px;height:26px;background:var(--ink);border-radius:50%;
+}
+.cell .num{z-index:2}
+.cell svg{display:block}
+.day-detail{margin-top:8px}
+
+/* 手帖条目 */
+.day-head{
+  display:flex;align-items:baseline;gap:10px;margin:26px 0 4px;
+  animation:pageIn .45s var(--ease-out);
+}
+.day-head b{font-family:var(--serif);font-size:21px;letter-spacing:.12em}
+.day-head span{font-size:10.5px;color:var(--ink-38);letter-spacing:.15em}
+.day-rule{height:1px;background:var(--hairline);margin-bottom:4px}
+.entry{
+  border-left:2px solid var(--ec,#999);padding:14px 0 13px 16px;margin:14px 0 4px;
+  animation:pageIn .45s var(--ease-out);position:relative;
+}
+.entry-top{display:flex;align-items:baseline;gap:10px}
+.entry-tag{font-family:var(--serif);font-size:16.5px;font-weight:700;letter-spacing:.12em}
+.entry-wv{font-size:10.5px;color:var(--ink-38);letter-spacing:.12em}
+.entry-del{
+  margin-left:auto;color:var(--ink-38);font-size:13px;cursor:pointer;padding:2px 8px;
+  transition:color .25s;
+}
+.entry-del:hover{color:var(--vermilion)}
+.entry-note{font-size:13.5px;color:var(--ink-60);line-height:1.85;margin-top:7px;word-break:break-all;font-family:var(--serif);letter-spacing:.03em}
+.entry-meta{font-size:10px;color:var(--ink-38);margin-top:9px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+.entry-meta .tr{margin-right:10px}
+
+/* ---------- 底栏 ---------- */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:rgba(245,240,232,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid var(--hairline);padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar .inner{max-width:480px;margin:0 auto;display:flex}
+.tabbar button{
+  flex:1;border:none;background:none;padding:10px 0 9px;cursor:pointer;
+  color:var(--ink-38);display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:color .3s;position:relative;
+}
+.tabbar button .zi{font-family:var(--serif);font-size:21px;font-weight:700;line-height:1;transition:transform .35s var(--ease-out)}
+.tabbar button .lb{font-size:9px;letter-spacing:.35em;text-indent:.35em}
+.tabbar button::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%) scaleX(0);
+  width:26px;height:2px;background:var(--vermilion);transition:transform .4s var(--ease-ink);
+}
+.tabbar button.on{color:var(--ink)}
+.tabbar button.on::before{transform:translateX(-50%) scaleX(1)}
+.tabbar button.on .zi{transform:translateY(-1px)}
+
+/* ---------- 望月呼吸 ---------- */
+.overlay{
+  position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+  background:#171410;opacity:0;transition:opacity .6s var(--ease-out);
+}
+.overlay.show{opacity:1}
+.stars{position:absolute;inset:0;overflow:hidden}
+.stars i{
+  position:absolute;background:#E8DCC8;border-radius:50%;opacity:.25;
+  animation:twinkle 3.5s ease-in-out infinite;
+}
+@keyframes twinkle{0%,100%{opacity:.12}50%{opacity:.55}}
+.breath-box{position:relative;text-align:center;color:#E8DCC8;padding:0 32px;max-width:380px;width:100%}
+.breath-box h3{font-family:var(--serif);font-size:19px;letter-spacing:.4em;text-indent:.4em;font-weight:700}
+.breath-box .hint{font-size:11px;color:rgba(232,220,200,.45);margin-top:10px;letter-spacing:.15em}
+.moon-wrap{height:240px;display:flex;align-items:center;justify-content:center}
+.moon{
+  width:110px;height:110px;border-radius:50%;
+  background:radial-gradient(circle at 38% 34%,#F4E3BC,#E3C083 58%,#C9A25F);
+  box-shadow:0 0 60px 18px rgba(227,192,131,.22),0 0 140px 60px rgba(227,192,131,.08);
+  transition:transform 4s cubic-bezier(.45,0,.35,1);
+  display:flex;align-items:center;justify-content:center;
+}
+.moon span{
+  font-family:var(--serif);color:#5C4626;font-size:14px;letter-spacing:.3em;text-indent:.3em;
+  font-weight:700;transition:opacity .8s;
+}
+.breath-stat{font-size:11px;color:rgba(232,220,200,.5);letter-spacing:.25em;margin-bottom:30px;font-variant-numeric:tabular-nums}
+.breath-acts{display:flex;gap:14px}
+.btn-moon,.btn-ink{
+  flex:1;padding:13px;font-size:13px;cursor:pointer;letter-spacing:.3em;text-indent:.3em;
+  font-family:var(--serif);background:none;transition:.3s;
+}
+.btn-moon{border:1px solid rgba(232,220,200,.3);color:rgba(232,220,200,.7)}
+.btn-moon:hover{border-color:rgba(232,220,200,.6)}
+.btn-ink{border:1px solid var(--vermilion);color:#E8A493}
+.btn-ink:hover{background:var(--vermilion);color:var(--paper)}
+
+/* ---------- Toast ---------- */
+#toast{
+  position:fixed;left:50%;bottom:108px;transform:translateX(-50%) translateY(16px);
+  background:var(--ink);color:var(--paper);font-size:12.5px;padding:12px 22px;
+  opacity:0;pointer-events:none;transition:.4s var(--ease-out);z-index:200;white-space:nowrap;
+  font-family:var(--serif);letter-spacing:.2em;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+[hidden]{display:none!important}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .rise{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
 
+<div class="grain"></div>
+
 <header>
-  <div class="logo">
-    <div class="mark">🏝️</div>
-    <div>
-      <h1>心屿</h1>
-      <p>心里有座小岛，随时靠岸</p>
+  <div class="brand">
+    <div class="brand-main">
+      <div class="brand-side vtext" id="brandSide">情绪手帖</div>
+      <div>
+        <h1>心屿</h1>
+        <div class="sub">心里有座小岛，随时靠岸</div>
+      </div>
     </div>
+    <div class="seal-days">已记<b id="daysNum">0</b>日</div>
   </div>
-  <div class="days" id="daysBadge">已记录 0 天</div>
 </header>
+
+<div class="tide-wrap">
+  <canvas id="tide"></canvas>
+  <div class="tide-cap vtext" id="tideCap">今日潮汐</div>
+</div>
 
 <main>
   <!-- ============ 记录页 ============ -->
   <section id="page-record">
-    <div class="card">
-      <div class="sec-title"><span class="step">1</span>此刻的情绪<small>选一个最贴近的</small></div>
-      <div class="grid" id="emoGrid"></div>
-    </div>
 
-    <div class="card">
-      <div class="sec-title"><span class="step">2</span>情绪有多强<small>拉动滑条</small></div>
-      <div class="int-row">
-        <div class="int-face" id="intFace">🙂</div>
-        <input type="range" id="intensity" min="1" max="5" value="3">
+    <div class="sec rise">
+      <div class="sec-head">
+        <span class="sec-no">其一</span>
+        <span class="sec-title">此刻的情绪</span>
+        <span class="sec-hint">择一最贴近者</span>
       </div>
-      <div class="int-label"><b id="intNum">3</b> 分 · <span id="intWord">明显</span></div>
+      <div class="sec-rule"></div>
+      <div id="emoAcc"></div>
     </div>
 
-    <div class="card">
-      <div class="sec-title"><span class="step">3</span>因为什么？<small>可不选 · 一句话就好</small></div>
-      <div class="chips" id="trigChips"></div>
-      <div class="note" style="margin-top:12px">
+    <div class="sec rise">
+      <div class="sec-head">
+        <span class="sec-no">其二</span>
+        <span class="sec-title">潮有多高</span>
+        <span class="sec-hint">点选浪峰</span>
+      </div>
+      <div class="sec-rule"></div>
+      <div class="ruler" id="ruler">
+        <svg id="rulerSvg" viewBox="0 0 300 74" preserveAspectRatio="none" aria-label="情绪强度"></svg>
+        <div class="ruler-word">
+          <span class="name" id="waveName">涌浪 · <em>三</em></span>
+          <span class="scale">微澜 —— 怒潮</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec rise">
+      <div class="sec-head">
+        <span class="sec-no">其三</span>
+        <span class="sec-title">因何而起</span>
+        <span class="sec-hint">可不选 · 一句话就好</span>
+      </div>
+      <div class="sec-rule"></div>
+      <div class="trigs" id="trigChips"></div>
+      <div class="note-line">
+        <span class="char" id="noteCount">0 / 80</span>
         <input type="text" id="note" maxlength="80" placeholder="写一句话，想说就说……">
       </div>
     </div>
 
-    <button class="save-btn" onclick="saveEntry()">存 进 小 岛</button>
+    <button class="seal-btn rise" id="saveBtn" onclick="saveEntry()">落笔存屿</button>
 
     <div class="suggest" id="breathSuggest" hidden>
-      <div class="txt"><b>要不要舒缓一下？</b>高强度情绪来了，先照顾自己 1 分钟。</div>
-      <button onclick="openBreath()">呼吸练习</button>
+      <span class="corner">宜缓</span>
+      <p><b>浪急了。</b>高强度的情绪涌上来时，先照顾自己一分钟——试试 4-7-8 呼吸，等潮头过去。</p>
+      <button class="go" onclick="openBreath()">随月呼吸 →</button>
     </div>
 
-    <div class="breath-link" onclick="openBreath()">🕊️ 没有情绪要记？<b>自由练习 1 分钟呼吸</b></div>
+    <div class="breath-link rise" onclick="openBreath()">无情绪可记？<b>对月自由呼吸一分钟</b></div>
 
-    <div class="card" style="margin-top:14px">
-      <div class="sec-title">🌤️ 今天的记录</div>
+    <div class="sec rise">
+      <div class="sec-head">
+        <span class="sec-no">今日</span>
+        <span class="sec-title">已靠岸的记录</span>
+      </div>
+      <div class="sec-rule"></div>
       <div id="todayList"></div>
     </div>
 
@@ -260,27 +483,27 @@
   <!-- ============ 回顾页 ============ -->
   <section id="page-review" hidden>
     <div class="seg">
-      <button class="on" id="segCal" onclick="switchView('cal')">📅 日历</button>
-      <button id="segTl" onclick="switchView('tl')">🗂 时间轴</button>
+      <button class="on" id="segCal" onclick="switchView('cal')">潮汐表</button>
+      <button id="segTl" onclick="switchView('tl')">手帖页</button>
     </div>
 
-    <div class="card">
-      <div class="month-bar">
-        <button onclick="moveMonth(-1)">‹</button>
-        <b id="monthLabel">2026年9月</b>
-        <button onclick="moveMonth(1)">›</button>
-      </div>
+    <div class="month-bar">
+      <button onclick="moveMonth(-1)" aria-label="上一月">‹</button>
+      <b id="monthLabel">2026年9月</b>
+      <button onclick="moveMonth(1)" aria-label="下一月">›</button>
+    </div>
+
+    <div class="week-wrap">
+      <div class="week-cap"><span>近七日潮色</span><span id="weekCnt"></span></div>
       <div class="week-bar" id="weekBar"></div>
       <div class="legend" id="legend"></div>
     </div>
 
     <div id="calWrap">
-      <div class="card">
-        <div class="cal-head">
-          <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
-        </div>
-        <div class="cal" id="calendar"></div>
+      <div class="cal-head">
+        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
       </div>
+      <div class="cal" id="calendar"></div>
       <div class="day-detail" id="dayDetail"></div>
     </div>
 
@@ -292,21 +515,22 @@
 
 <nav class="tabbar">
   <div class="inner">
-    <button class="on" id="tab-record" onclick="switchTab('record')"><span class="ic">✏️</span>记录</button>
-    <button id="tab-review" onclick="switchTab('review')"><span class="ic">🗓</span>回顾</button>
+    <button class="on" id="tab-record" onclick="switchTab('record')"><span class="zi">记</span><span class="lb">记录</span></button>
+    <button id="tab-review" onclick="switchTab('review')"><span class="zi">溯</span><span class="lb">回溯</span></button>
   </div>
 </nav>
 
-<!-- 呼吸练习浮层 -->
+<!-- 望月呼吸 -->
 <div class="overlay" id="breathOverlay" hidden>
+  <div class="stars" id="stars"></div>
   <div class="breath-box">
-    <h3>4-7-8 呼吸</h3>
-    <div class="hint">跟着圆圈：吸气 4 秒 → 屏息 7 秒 → 呼气 8 秒</div>
-    <div class="circle-wrap"><div class="circle" id="breathCircle">准备开始</div></div>
-    <div class="breath-stat" id="breathStat">共 4 轮 · 约 1 分钟</div>
+    <h3>望月呼吸</h3>
+    <div class="hint">随月涨落 · 吸四息 → 屏七息 → 呼八息</div>
+    <div class="moon-wrap"><div class="moon" id="moon"><span id="moonText">候月</span></div></div>
+    <div class="breath-stat" id="breathStat">共四轮 · 约一分钟</div>
     <div class="breath-acts">
-      <button class="btn-ghost" onclick="closeBreath()">结束</button>
-      <button class="btn-fill" id="breathStart" onclick="startBreath()">开始</button>
+      <button class="btn-moon" onclick="closeBreath()">离席</button>
+      <button class="btn-ink" id="breathStart" onclick="startBreath()">开始</button>
     </div>
   </div>
 </div>
@@ -314,117 +538,324 @@
 <div id="toast"></div>
 
 <script>
-/* ================= 数据 ================= */
+/* ================= 数据（schema 与 v0.1 完全兼容） ================= */
 const EMO = {
-  joy:   {color:'#F7C948', cat:'积极', icon:'😊', tags:['开心','满足','兴奋','平静喜悦']},
-  calm:  {color:'#7CB342', cat:'平静', icon:'😌', tags:['平静','放松','专注','知足']},
-  sad:   {color:'#5C9DFF', cat:'低落', icon:'😢', tags:['难过','失落','孤独','疲惫']},
-  anx:   {color:'#F2994A', cat:'焦虑', icon:'😰', tags:['焦虑','紧张','压力大','迷茫']},
-  angry: {color:'#EB5757', cat:'激烈', icon:'😤', tags:['烦躁','愤怒','委屈','崩溃']}
+  joy:   {color:'#D9A441', cat:'积极', tide:'暖潮', tags:['开心','满足','兴奋','平静喜悦']},
+  calm:  {color:'#6E7F5C', cat:'平静', tide:'平潮', tags:['平静','放松','专注','知足']},
+  sad:   {color:'#5B6B7C', cat:'低落', tide:'落潮', tags:['难过','失落','孤独','疲惫']},
+  anx:   {color:'#B26A38', cat:'焦虑', tide:'乱流', tags:['焦虑','紧张','压力大','迷茫']},
+  angry: {color:'#9E3D34', cat:'激烈', tide:'风暴', tags:['烦躁','愤怒','委屈','崩溃']}
 };
+const EMO_KEYS = Object.keys(EMO);
 const TRIGGERS = ['考试/学业','工作/加班','人际冲突','感情','家庭','健康','经济','天气','睡眠','其他'];
-const INT_WORDS = {1:'轻微',2:'有点',3:'明显',4:'强烈',5:'爆表'};
-const INT_FACES = {1:'🙂',2:'😐',3:'😟',4:'😣',5:'😫'};
+const CN = ['一','二','三','四','五'];
+const WAVES = {1:'微澜',2:'轻浪',3:'涌浪',4:'大浪',5:'怒潮'};
 const NEG = ['sad','anx','angry'];
 const KEY = 'xinyu_entries';
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const load = () => { try{ return JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ return []; } };
 const save = (list) => localStorage.setItem(KEY, JSON.stringify(list));
 let entries = load();
 
-let selTag = null;          // {cat, tag}
+let selTag = null;
 let selTriggers = new Set();
+let intensity = 3;
 let viewMonth = new Date(); viewMonth.setDate(1);
 let curView = 'cal';
 let selDate = null;
 
-/* ================= 记录页 ================= */
-function initGrid(){
-  const g = document.getElementById('emoGrid');
-  g.innerHTML = '';
-  Object.entries(EMO).forEach(([key, em])=>{
-    em.tags.forEach(t=>{
-      const d = document.createElement('div');
-      d.className = 'tag'; d.dataset.key = key; d.dataset.tag = t;
-      d.innerHTML = `<span class="em">${em.icon}</span>${t}`;
-      d.onclick = ()=> selectTag(d, key, t);
-      g.appendChild(d);
+/* ================= 潮汐画布 ================= */
+const cv = document.getElementById('tide');
+const cx = cv.getContext('2d');
+let CW = 0, CH = 0, DPR = 1;
+let t0 = performance.now();
+let pointer = {x:-999, y:0, power:0};
+let ripples = [];
+
+function tideSize(){
+  DPR = Math.min(devicePixelRatio || 1, 2);
+  CW = cv.clientWidth; CH = cv.clientHeight;
+  cv.width = CW * DPR; cv.height = CH * DPR;
+  cx.setTransform(DPR,0,0,DPR,0,0);
+}
+addEventListener('resize', tideSize);
+
+/* 时辰光色：晨 / 昼 / 暮 / 夜 */
+function dayPhase(){
+  const h = new Date().getHours();
+  if(h >= 5 && h < 9)  return {tint:'#C98F3D', glow:.30, name:'晨潮'};
+  if(h >= 9 && h < 17) return {tint:'#8C8478', glow:.16, name:'午潮'};
+  if(h >= 17 && h < 20)return {tint:'#C04531', glow:.32, name:'暮潮'};
+  return {tint:'#3A352C', glow:.34, name:'夜潮'};
+}
+function hexRgb(hex){
+  const n = parseInt(hex.slice(1),16);
+  return [n>>16, (n>>8)&255, n&255];
+}
+function mix(a,b,t){ return a.map((v,i)=> Math.round(v+(b[i]-v)*t)); }
+
+cv.addEventListener('pointermove', e=>{
+  const r = cv.getBoundingClientRect();
+  pointer.x = e.clientX - r.left; pointer.y = e.clientY - r.top;
+  pointer.power = Math.min(pointer.power + .25, 1);
+});
+cv.addEventListener('pointerleave', ()=> pointer.power = 0);
+cv.addEventListener('pointerdown', e=>{
+  const r = cv.getBoundingClientRect();
+  dropRipple(e.clientX - r.left, e.clientY - r.top, null);
+});
+function dropRipple(x, y, color){
+  ripples.push({x, y, start:performance.now(), color});
+  if(ripples.length > 6) ripples.shift();
+}
+
+function drawTide(now){
+  const t = (now - t0) / 1000;
+  cx.clearRect(0,0,CW,CH);
+  const phase = dayPhase();
+  const ink = hexRgb('#26221C'), tint = hexRgb(phase.tint);
+  const LINES = 13;
+
+  /* 日 / 月：位置随时刻划过天际 */
+  const h = new Date().getHours() + new Date().getMinutes()/60;
+  const sunX = CW * (h/24);
+  const sunY = CH * (.34 - .18*Math.sin(Math.PI * h/24));
+  const isNight = h < 5 || h >= 20;
+  cx.beginPath();
+  cx.arc(sunX, sunY, 5, 0, 7);
+  cx.fillStyle = isNight ? 'rgba(232,220,200,.85)' : 'rgba(192,69,49,.55)';
+  cx.shadowColor = isNight ? 'rgba(232,220,200,.8)' : 'rgba(192,69,49,.5)';
+  cx.shadowBlur = 18;
+  cx.fill();
+  cx.shadowBlur = 0;
+
+  for(let i=0;i<LINES;i++){
+    const baseY = 18 + i*(CH-26)/(LINES-1);
+    const depth = i/(LINES-1);
+    const col = mix(tint, ink, .35 + depth*.55);
+    cx.beginPath();
+    for(let x=0; x<=CW; x+=5){
+      let y = baseY
+        + Math.sin(x*.011 + t*.55 + i*.62) * (3.2 + depth*3.4)
+        + Math.sin(x*.027 - t*.32 + i*1.7) * 1.8
+        + Math.sin(x*.005 + t*.18 + i*.3) * 4.5;
+      /* 指针扰动：指尖入海 */
+      if(pointer.power > .01){
+        const dx = x - pointer.x, dy = baseY - pointer.y;
+        const g = Math.exp(-(dx*dx)/(2*70*70)) * Math.exp(-(dy*dy)/(2*46*46));
+        y += g * 14 * pointer.power * Math.sin(t*4 + dx*.05);
+      }
+      /* 涟漪掀浪 */
+      for(const rp of ripples){
+        const age = (now - rp.start)/1000;
+        if(age > 2.4) continue;
+        const dx = x - rp.x;
+        const ringR = age*90;
+        const d = Math.abs(Math.hypot(dx, baseY - rp.y) - ringR);
+        if(d < 34) y += Math.sin((34-d)/34 * Math.PI) * 5 * (1 - age/2.4);
+      }
+      x===0 ? cx.moveTo(x,y) : cx.lineTo(x,y);
+    }
+    cx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${.10 + depth*.16})`;
+    cx.lineWidth = 1;
+    cx.stroke();
+  }
+
+  /* 涟漪环 */
+  ripples = ripples.filter(rp => (now - rp.start)/1000 < 2.4);
+  for(const rp of ripples){
+    const age = (now - rp.start)/1000;
+    const rgb = rp.color ? hexRgb(rp.color) : hexRgb('#C04531');
+    for(let k=0;k<3;k++){
+      const rr = age*90 - k*14;
+      if(rr <= 0) continue;
+      cx.beginPath();
+      cx.ellipse(rp.x, rp.y, rr, rr*.38, 0, 0, 7);
+      cx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${(1-age/2.4)*(.5 - k*.13)})`;
+      cx.lineWidth = 1.2;
+      cx.stroke();
+    }
+  }
+  pointer.power *= .965;
+
+  if(!REDUCED && !document.hidden) requestAnimationFrame(drawTide);
+}
+tideSize();
+if(REDUCED){ drawTide(performance.now()+16); }
+else{
+  requestAnimationFrame(drawTide);
+  document.addEventListener('visibilitychange', ()=>{
+    if(!document.hidden) requestAnimationFrame(drawTide);
+  });
+}
+document.getElementById('tideCap').textContent = dayPhase().name;
+
+/* ================= 记录页 · 情绪手风琴 ================= */
+function waveStroke(color){
+  return `<svg class="cat-wave" width="34" height="12" viewBox="0 0 34 12" fill="none">
+    <path d="M1 8 Q6 2 11 8 T21 8 T31 8" stroke="${color}" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>`;
+}
+function initAcc(){
+  const box = document.getElementById('emoAcc');
+  box.innerHTML = '';
+  EMO_KEYS.forEach((key, idx)=>{
+    const em = EMO[key];
+    const cat = document.createElement('div');
+    cat.className = 'emo-cat';
+    cat.innerHTML = `
+      <div class="cat-row">
+        <span class="cat-zi" style="color:${em.color}">${em.cat}</span>
+        <span class="cat-tide">${em.tide} · ${CN[idx]}号水域</span>
+        ${waveStroke(em.color)}
+      </div>
+      <div class="cat-body">
+        <div class="tag-list">
+          ${em.tags.map(t=>`<div class="tag-item" data-key="${key}" data-tag="${t}">${t}</div>`).join('')}
+        </div>
+      </div>`;
+    const row = cat.querySelector('.cat-row');
+    const body = cat.querySelector('.cat-body');
+    row.onclick = ()=>{
+      const open = cat.classList.contains('open');
+      document.querySelectorAll('.emo-cat').forEach(c=>{
+        c.classList.remove('open');
+        c.querySelector('.cat-body').style.maxHeight = '0';
+      });
+      if(!open){
+        cat.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    };
+    cat.querySelectorAll('.tag-item').forEach(el=>{
+      el.onclick = (e)=>{
+        e.stopPropagation();
+        document.querySelectorAll('.tag-item').forEach(x=>x.classList.remove('on'));
+        el.classList.add('on');
+        selTag = {cat:key, tag:el.dataset.tag};
+        document.querySelectorAll('.emo-cat').forEach(c=>{
+          if(c !== cat){ c.classList.remove('open'); c.querySelector('.cat-body').style.maxHeight='0'; }
+        });
+      };
     });
+    box.appendChild(cat);
   });
 }
-function selectTag(el, key, tag){
-  selTag = {cat:key, tag};
-  document.querySelectorAll('.tag').forEach(x=>{
-    x.classList.remove('on');
-    x.style.background = '#fff'; x.style.color = '';
-  });
-  el.classList.add('on');
-  el.style.background = EMO[key].color;
+
+/* ================= 潮汐标尺 ================= */
+function drawRuler(){
+  const svg = document.getElementById('rulerSvg');
+  const peaks = [10, 20, 32, 46, 62];       /* 浪峰高度 */
+  const W = 300, base = 68, slot = W/5;
+  let html = `<line x1="0" y1="${base}" x2="${W}" y2="${base}" stroke="rgba(38,34,28,.2)" stroke-width="1"/>`;
+  for(let i=0;i<5;i++){
+    const x0 = i*slot + 8, x1 = (i+1)*slot - 8, xm = (x0+x1)/2, h = peaks[i];
+    const active = i < intensity;
+    const cur = i === intensity-1;
+    const stroke = cur ? '#C04531' : (active ? '#26221C' : 'rgba(38,34,28,.25)');
+    const fill = cur ? 'rgba(192,69,49,.10)' : (active ? 'rgba(38,34,28,.06)' : 'none');
+    html += `<path d="M${x0} ${base} Q${xm} ${base-h*1.9} ${x1} ${base} Z"
+      fill="${fill}" stroke="${stroke}" stroke-width="${cur?2:1.2}"
+      style="transition:all .35s cubic-bezier(.22,1,.36,1)"/>`;
+    if(cur){
+      html += `<circle cx="${xm}" cy="${base-h*1.9-6}" r="3" fill="#C04531">
+        <animate attributeName="cy" values="${base-h*1.9-6};${base-h*1.9-10};${base-h*1.9-6}" dur="1.6s" repeatCount="indefinite"/></circle>`;
+    }
+  }
+  svg.innerHTML = html;
 }
-function initTriggers(){
+function setIntensity(v){
+  intensity = Math.max(1, Math.min(5, v));
+  drawRuler();
+  document.getElementById('waveName').innerHTML = `${WAVES[intensity]} · <em>${CN[intensity-1]}</em>`;
+}
+(function(){
+  const svg = document.getElementById('rulerSvg');
+  const pick = (e)=>{
+    const r = svg.getBoundingClientRect();
+    const x = (e.clientX ?? (e.touches && e.touches[0].clientX)) - r.left;
+    setIntensity(Math.ceil(x / r.width * 5));
+  };
+  let dragging = false;
+  svg.addEventListener('pointerdown', e=>{ dragging = true; svg.setPointerCapture(e.pointerId); pick(e); });
+  svg.addEventListener('pointermove', e=>{ if(dragging) pick(e); });
+  svg.addEventListener('pointerup', ()=> dragging = false);
+})();
+
+/* ================= 触发因素 & 备注 ================= */
+function initTrigs(){
   const box = document.getElementById('trigChips');
   TRIGGERS.forEach(t=>{
     const c = document.createElement('div');
-    c.className = 'chip'; c.textContent = t;
+    c.className = 'trig'; c.textContent = t;
     c.onclick = ()=>{
-      if(selTriggers.has(t)) { selTriggers.delete(t); c.classList.remove('on'); }
-      else { selTriggers.add(t); c.classList.add('on'); }
+      if(selTriggers.has(t)){ selTriggers.delete(t); c.classList.remove('on'); }
+      else{ selTriggers.add(t); c.classList.add('on'); }
     };
     box.appendChild(c);
   });
 }
-document.getElementById('intensity').addEventListener('input', e=>{
-  const v = +e.target.value;
-  document.getElementById('intFace').textContent = INT_FACES[v];
-  document.getElementById('intNum').textContent = v;
-  document.getElementById('intWord').textContent = INT_WORDS[v];
+document.getElementById('note').addEventListener('input', e=>{
+  document.getElementById('noteCount').textContent = `${e.target.value.length} / 80`;
 });
 
+/* ================= 保存 ================= */
 function saveEntry(){
-  if(!selTag){ toast('先选一个此刻的情绪吧 🥺'); return; }
+  if(!selTag){ toast('先择一个此刻的情绪'); return; }
   const it = {
     id: Date.now(),
     cat: selTag.cat, tag: selTag.tag,
-    intensity: +document.getElementById('intensity').value,
+    intensity,
     triggers: [...selTriggers],
     note: document.getElementById('note').value.trim(),
     ts: Date.now()
   };
   entries.push(it); save(entries);
-  // 重置表单
+
+  /* 落石入海：涟漪带着情绪色 */
+  const r = cv.getBoundingClientRect();
+  dropRipple(r.width*(.3+Math.random()*.4), r.height*(.35+Math.random()*.3), EMO[it.cat].color);
+
+  /* 印章盖下 */
+  const btn = document.getElementById('saveBtn');
+  btn.classList.remove('stamp'); void btn.offsetWidth; btn.classList.add('stamp');
+
+  /* 重置 */
   selTag = null; selTriggers.clear();
-  document.querySelectorAll('.tag').forEach(x=>{x.classList.remove('on');x.style.background='#fff';});
-  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tag-item').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.emo-cat').forEach(c=>{ c.classList.remove('open'); c.querySelector('.cat-body').style.maxHeight='0'; });
+  document.querySelectorAll('.trig').forEach(x=>x.classList.remove('on'));
   document.getElementById('note').value = '';
-  document.getElementById('intensity').value = 3;
-  document.getElementById('intensity').dispatchEvent(new Event('input'));
+  document.getElementById('noteCount').textContent = '0 / 80';
+  setIntensity(3);
   renderAll();
-  const praise = ['已经存进小岛了 🏝️','辛苦了，被记住了 🤍','好样的，又觉察了一次 ✨'][Math.floor(Math.random()*3)];
+
+  const praise = ['已收入今日潮汐','辛苦了，海记得','落笔即成岸'][Math.floor(Math.random()*3)];
   toast(praise);
   const suggest = document.getElementById('breathSuggest');
-  if(NEG.includes(it.cat) && it.intensity >= 4){ suggest.hidden = false; }
-  else { suggest.hidden = true; }
+  suggest.hidden = !(NEG.includes(it.cat) && it.intensity >= 4);
 }
 
+/* ================= 今日记录 ================= */
 function renderToday(){
   const box = document.getElementById('todayList');
   const today = new Date(); today.setHours(0,0,0,0);
-  const list = entries.filter(e=> e.ts >= today.getTime())
-                      .sort((a,b)=> b.ts - a.ts);
-  if(!list.length){ box.innerHTML = '<div class="empty">今天还没有记录，第一条就现在吧</div>'; return; }
+  const list = entries.filter(e=> e.ts >= today.getTime()).sort((a,b)=> b.ts - a.ts);
+  if(!list.length){ box.innerHTML = '<div class="empty">今日尚无记录，第一笔就趁现在</div>'; return; }
   box.innerHTML = list.map(e=>{
     const em = EMO[e.cat];
-    return `<div class="today-item">
+    return `<div class="today-row">
       <span class="dot" style="background:${em.color}"></span>
-      <span>${em.icon} ${e.tag} · 强度 ${e.intensity}</span>
+      <span class="tg">${e.tag}</span>
+      <span class="wv">${WAVES[e.intensity]}</span>
       <span class="t">${new Date(e.ts).toTimeString().slice(0,5)}</span>
     </div>`;
   }).join('');
 }
-
 function renderDays(){
   const days = new Set(entries.map(e=> new Date(e.ts).toDateString()));
-  document.getElementById('daysBadge').textContent = `已记录 ${days.size} 天`;
+  document.getElementById('daysNum').textContent = days.size;
 }
 
 /* ================= 回顾页 ================= */
@@ -446,14 +877,20 @@ function entriesOfDay(y,m,d){
     return dt.getFullYear()===y && dt.getMonth()===m && dt.getDate()===d;
   });
 }
-function dayColor(list){ // 当日主色：强度加权取和最大的大类
+function dayColor(list){
   const sum = {};
   list.forEach(e=> sum[e.cat] = (sum[e.cat]||0) + e.intensity);
   return Object.entries(sum).sort((a,b)=> b[1]-a[1])[0][0];
 }
-function hexA(hex, a){
-  const n = parseInt(hex.slice(1),16);
-  return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`;
+/* 迷你波浪：波高 = 平均强度，确定性好复现 */
+function miniWave(color, amp, seed){
+  const W2 = 30, H = 10, base = 6.5;
+  const a = 1 + amp*1.05;
+  const p1 = ((seed*7)%10)/10 * 6;
+  return `<svg width="${W2}" height="${H}" viewBox="0 0 ${W2} ${H}" fill="none">
+    <path class="mw" d="M1 ${base} Q${5+p1} ${base-a*1.8} ${9+p1*.5} ${base} T${17+p1*.3} ${base} T${W2-1} ${base}"
+      stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`;
 }
 function renderCalendar(){
   const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
@@ -461,29 +898,44 @@ function renderCalendar(){
   const cal = document.getElementById('calendar');
   cal.innerHTML = '';
   const first = new Date(y,m,1);
-  let shift = (first.getDay()+6)%7; // 周一开头
+  let shift = (first.getDay()+6)%7;
   const total = new Date(y,m+1,0).getDate();
-  const today = new Date();
+  const now = new Date();
   for(let i=0;i<shift;i++){
     const c = document.createElement('div'); c.className='cell dim'; cal.appendChild(c);
   }
   for(let d=1; d<=total; d++){
     const c = document.createElement('div');
     c.className = 'cell';
-    c.textContent = d;
     const list = entriesOfDay(y,m,d);
+    let inner = `<span class="num">${d}</span>`;
     if(list.length){
       const key = dayColor(list);
       const avg = list.reduce((s,e)=>s+e.intensity,0)/list.length;
       c.classList.add('has');
-      c.style.background = hexA(EMO[key].color, .28 + avg/7); // 强度→深浅
+      inner += miniWave(EMO[key].color, avg, d);
       c.title = `${list.length} 条记录`;
+    }else{
+      inner += `<svg width="30" height="10"><line x1="8" y1="6.5" x2="22" y2="6.5" stroke="rgba(38,34,28,.10)" stroke-width="1"/></svg>`;
     }
-    const now = new Date();
+    c.innerHTML = inner;
     if(y===now.getFullYear() && m===now.getMonth() && d===now.getDate()) c.classList.add('today');
     if(selDate === d) c.classList.add('sel');
     c.onclick = ()=>{ selDate = (selDate===d? null : d); renderCalendar(); renderDayDetail(); };
     cal.appendChild(c);
+  }
+  /* 波浪依次描画 */
+  if(!REDUCED){
+    cal.querySelectorAll('.mw').forEach((p, i)=>{
+      const len = p.getTotalLength();
+      p.style.strokeDasharray = len;
+      p.style.strokeDashoffset = len;
+      p.style.transition = 'none';
+      requestAnimationFrame(()=>{
+        p.style.transition = `stroke-dashoffset .7s ${.05*i + .1}s cubic-bezier(.22,1,.36,1)`;
+        p.style.strokeDashoffset = '0';
+      });
+    });
   }
 }
 function renderDayDetail(){
@@ -491,91 +943,132 @@ function renderDayDetail(){
   if(selDate == null){ box.innerHTML=''; return; }
   const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
   const list = entriesOfDay(y,m,selDate).sort((a,b)=>b.ts-a.ts);
-  if(!list.length){ box.innerHTML = `<div class="card"><div class="empty">这一天没有记录</div></div>`; return; }
-  box.innerHTML = `<div class="card">${list.map(cardHTML).join('')}</div>`;
+  const wd = ['日','一','二','三','四','五','六'][new Date(y,m,selDate).getDay()];
+  if(!list.length){
+    box.innerHTML = `<div class="day-head"><b>${m+1}月${selDate}日</b><span>周${wd}</span></div>
+      <div class="day-rule"></div><div class="empty">这一日无潮讯</div>`;
+    return;
+  }
+  box.innerHTML = `<div class="day-head"><b>${m+1}月${selDate}日</b><span>周${wd} · ${list.length} 笔</span></div>
+    <div class="day-rule"></div>${list.map(entryHTML).join('')}`;
 }
-function stars(n){ return '●'.repeat(n) + '○'.repeat(5-n); }
-function cardHTML(e){
+function entryHTML(e){
   const em = EMO[e.cat];
   const time = new Date(e.ts);
-  return `<div class="tl-item" style="border-left-color:${em.color}">
-    <div class="tl-top">
-      <span class="em">${em.icon}</span><b>${e.tag}</b>
-      <span class="stars">${stars(e.intensity)}</span>
-      <span class="del" onclick="delEntry(${e.id})">✕</span>
+  return `<div class="entry" style="--ec:${em.color}">
+    <div class="entry-top">
+      <span class="entry-tag">${e.tag}</span>
+      <span class="entry-wv">${WAVES[e.intensity]} · ${CN[e.intensity-1]}</span>
+      <span class="entry-del" onclick="delEntry(${e.id})" aria-label="删除">✕</span>
     </div>
-    ${e.note? `<div class="tl-note">${esc(e.note)}</div>`:''}
-    ${e.triggers.length? `<div class="tl-trig">${e.triggers.map(t=>`<span>${t}</span>`).join('')}</div>`:''}
-    <div class="tl-time">${time.getFullYear()}/${time.getMonth()+1}/${time.getDate()} ${time.toTimeString().slice(0,5)}</div>
+    ${e.note? `<div class="entry-note">${esc(e.note)}</div>`:''}
+    <div class="entry-meta">
+      ${e.triggers.map(t=>`<span class="tr">${t}</span>`).join('')}
+      ${time.getFullYear()}/${String(time.getMonth()+1).padStart(2,'0')}/${String(time.getDate()).padStart(2,'0')} ${time.toTimeString().slice(0,5)}
+    </div>
   </div>`;
 }
 function esc(s){ return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function delEntry(id){
   entries = entries.filter(e=> e.id !== id); save(entries);
-  renderAll(); toast('已删除');
+  renderAll(); toast('已撕去这一页');
 }
 function renderTimeline(){
   const list = [...entries].sort((a,b)=> b.ts - a.ts);
   const box = document.getElementById('timeline');
-  if(!list.length){ box.innerHTML = `<div class="card"><div class="empty">还没有任何记录<br>去「记录」页写下第一条吧</div></div>`; return; }
-  box.innerHTML = list.map(cardHTML).join('');
+  if(!list.length){
+    box.innerHTML = `<div class="empty" style="padding-top:34px">手帖尚是空白<br>去「记」页写下第一笔</div>`;
+    return;
+  }
+  let html = '', lastDay = '';
+  const wd = ['日','一','二','三','四','五','六'];
+  for(const e of list){
+    const d = new Date(e.ts);
+    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    if(key !== lastDay){
+      lastDay = key;
+      html += `<div class="day-head"><b>${d.getMonth()+1}月${d.getDate()}日</b><span>周${wd[d.getDay()]}</span></div><div class="day-rule"></div>`;
+    }
+    html += entryHTML(e);
+  }
+  box.innerHTML = html;
 }
 function renderWeekBar(){
   const bar = document.getElementById('weekBar');
   const leg = document.getElementById('legend');
+  const cnt = document.getElementById('weekCnt');
   const weekAgo = Date.now() - 7*864e5;
   const list = entries.filter(e=> e.ts >= weekAgo);
-  leg.innerHTML = Object.entries(EMO).map(([k,v])=>
-    `<span><i style="background:${v.color}"></i>${v.cat}</span>`).join('');
-  if(!list.length){ bar.innerHTML=''; return; }
-  const cnt = {}; let total = 0;
-  list.forEach(e=>{ cnt[e.cat]=(cnt[e.cat]||0)+1; total++; });
-  bar.innerHTML = Object.entries(EMO).map(([k,v])=>{
-    const w = total? (cnt[k]||0)/total*100 : 0;
-    return w? `<div style="width:${w}%;background:${v.color}"></div>` : '';
+  leg.innerHTML = EMO_KEYS.map(k=>
+    `<span><i style="background:${EMO[k].color}"></i>${EMO[k].cat}</span>`).join('');
+  if(!list.length){ bar.innerHTML=''; cnt.textContent=''; return; }
+  const c = {}; let total = 0;
+  list.forEach(e=>{ c[e.cat]=(c[e.cat]||0)+1; total++; });
+  cnt.textContent = `共 ${total} 笔`;
+  bar.innerHTML = EMO_KEYS.map(k=>{
+    const w = total? (c[k]||0)/total*100 : 0;
+    return w? `<div style="width:${w}%;background:${EMO[k].color}"></div>` : '';
   }).join('');
 }
 function renderReview(){ renderCalendar(); renderDayDetail(); renderTimeline(); renderWeekBar(); }
 
-/* ================= 呼吸练习 ================= */
+/* ================= 望月呼吸 ================= */
 let breathTimer = null;
+(function initStars(){
+  const box = document.getElementById('stars');
+  let html = '';
+  for(let i=0;i<42;i++){
+    const s = 1 + Math.random()*1.8;
+    html += `<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;width:${s}px;height:${s}px;animation-delay:${(Math.random()*3.5).toFixed(2)}s"></i>`;
+  }
+  box.innerHTML = html;
+})();
 function openBreath(){
-  document.getElementById('breathOverlay').hidden = false;
-  document.getElementById('breathCircle').style.transform = 'scale(1)';
-  document.getElementById('breathCircle').textContent = '准备开始';
+  const ov = document.getElementById('breathOverlay');
+  ov.hidden = false;
+  requestAnimationFrame(()=> ov.classList.add('show'));
+  document.getElementById('moon').style.transform = 'scale(1)';
+  document.getElementById('moonText').textContent = '候月';
 }
 function closeBreath(){
-  document.getElementById('breathOverlay').hidden = true;
+  const ov = document.getElementById('breathOverlay');
+  ov.classList.remove('show');
+  setTimeout(()=> ov.hidden = true, 600);
   if(breathTimer){ clearTimeout(breathTimer); breathTimer = null; }
   document.getElementById('breathStart').textContent = '开始';
 }
 function startBreath(){
   if(breathTimer) return;
   document.getElementById('breathStart').textContent = '进行中…';
-  const circle = document.getElementById('breathCircle');
+  const moon = document.getElementById('moon');
+  const text = document.getElementById('moonText');
   const stat = document.getElementById('breathStat');
   const phases = [
-    {name:'吸气…', dur:4000, scale:1.7},
-    {name:'屏息', dur:7000, scale:1.7},
-    {name:'呼气…', dur:8000, scale:1.0}
+    {name:'吸', dur:4000, scale:1.65, ease:'4s'},
+    {name:'屏', dur:7000, scale:1.65, ease:'.6s'},
+    {name:'呼', dur:8000, scale:1.0,  ease:'8s'}
   ];
   let round = 0;
   const TOTAL = 4;
   function run(p){
     if(p === 0){
       round++;
-      if(round > TOTAL){ 
-        circle.style.transform='scale(1)'; circle.textContent='完成 🌿';
-        stat.textContent='练习结束，感受一下现在的自己';
-        breathTimer=null; document.getElementById('breathStart').textContent='再来一次';
+      if(round > TOTAL){
+        moon.style.transition = 'transform 2s cubic-bezier(.45,0,.35,1)';
+        moon.style.transform = 'scale(1)';
+        text.textContent = '月满';
+        stat.textContent = '潮已平 · 感受一下此刻的自己';
+        breathTimer = null;
+        document.getElementById('breathStart').textContent = '再来一轮';
         return;
       }
       stat.textContent = `第 ${round} / ${TOTAL} 轮`;
     }
     const ph = phases[p];
-    circle.style.transition = `transform ${ (p===0?4:(p===1?0.6:8)) }s cubic-bezier(.4,0,.4,1)`;
-    circle.style.transform = `scale(${ph.scale})`;
-    circle.textContent = ph.name;
+    moon.style.transition = `transform ${ph.ease} cubic-bezier(.45,0,.35,1)`;
+    moon.style.transform = `scale(${ph.scale})`;
+    text.style.opacity = 0;
+    setTimeout(()=>{ text.textContent = ph.name; text.style.opacity = 1; }, 350);
     breathTimer = setTimeout(()=>{ breathTimer = null; run((p+1)%3); }, ph.dur);
   }
   run(0);
@@ -592,14 +1085,23 @@ function switchTab(t){
 }
 let toastTimer = null;
 function toast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
+  const tt = document.getElementById('toast');
+  tt.textContent = msg; tt.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> t.classList.remove('show'), 2200);
+  toastTimer = setTimeout(()=> tt.classList.remove('show'), 2400);
 }
 function renderAll(){ renderToday(); renderDays(); renderReview(); }
 
-initGrid(); initTriggers(); renderAll();
+/* ================= 滚动浮现 ================= */
+(function(){
+  if(REDUCED) return;
+  const io = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:.08});
+  document.querySelectorAll('.rise').forEach(el=> io.observe(el));
+})();
+
+initAcc(); initTrigs(); setIntensity(3); renderAll();
 </script>
 </body>
 </html>
