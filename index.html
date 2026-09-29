@@ -1480,7 +1480,7 @@ function maskEmail(em){
 }
 function updateCloudStatus(s){
   const el = document.getElementById('cloudStatus');
-  if(el) el.innerHTML = `已登船 · <b>${maskEmail(cloudUser && cloudUser.email)}</b><br>${s}`;
+  if(el) el.innerHTML = `已登船 · <b>${maskEmail(cloudEmailOf())}</b><br>${s}`;
 }
 function renderCloudUI(){
   const off = document.getElementById('cloudOff');
@@ -1509,6 +1509,16 @@ async function cloudInit(){
 }
 
 let pendingEmailOtp = null;
+/* 新邮箱首次注册时后端要求携带密码（老用户仅凭验证码即可登录）。
+   为保持"只要邮箱+验证码"的低门槛，密码由客户端随机生成并留在本地，
+   用户全程无感知；后续换机登录走 OTP 也不需要它。 */
+const PWKEY = 'xinyu_cloud_pw';
+function genCloudPw(){
+  const abc = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const buf = new Uint8Array(18); crypto.getRandomValues(buf);
+  return Array.from(buf, b => abc[b % abc.length]).join('');
+}
+function cloudEmailOf(){ return localStorage.getItem('xinyu_cloud_email') || ''; }
 async function cloudSendCode(){
   if(!cloud) return;
   const email = document.getElementById('cloudEmail').value.trim().toLowerCase();
@@ -1534,17 +1544,20 @@ async function cloudLogin(){
   btn.disabled = true; btn.textContent = '登船中…';
   let done;
   try{
+    if(!pendingEmailOtp.isExistingUser && !localStorage.getItem(PWKEY)) localStorage.setItem(PWKEY, genCloudPw());
     done = await cloud.auth.verifyOtp({
       email: pendingEmailOtp.email,
       verificationId: pendingEmailOtp.verificationId,
       isExistingUser: pendingEmailOtp.isExistingUser,
-      token: code
+      token: code,
+      password: pendingEmailOtp.isExistingUser ? undefined : localStorage.getItem(PWKEY)
     });
   }catch(e){ done = { error: e }; }
   btn.disabled = false; btn.textContent = '凭信登船';
   if(!done || done.error){ toast('登船未成：潮信可能已过期，请重寄一封'); pendingEmailOtp = null; document.getElementById('cloudLoginBtn').disabled = true; return; }
   pendingEmailOtp = null;
   cloudUser = done.data.user;
+  localStorage.setItem('xinyu_cloud_email', document.getElementById('cloudEmail').value.trim().toLowerCase());
   document.getElementById('cloudCode').value = '';
   renderCloudUI();
   await syncAll('登船');
