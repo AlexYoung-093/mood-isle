@@ -380,6 +380,17 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 .fb-opts button.on{border-color:#E3C083;color:#E3C083}
 .fb-res{font-family:var(--serif);font-size:12px;letter-spacing:.15em;color:#E3C083;margin-top:14px;min-height:18px}
 
+/* ---------- 云屿（可选云同步） ---------- */
+.cloud-desc{font-size:12px;color:var(--ink-60);line-height:1.9;letter-spacing:.05em;font-family:var(--serif);margin-bottom:14px}
+.cloud-line{margin-top:14px}
+.cloud-row{display:flex;gap:12px;margin-top:12px}
+.cloud-status{font-family:var(--serif);font-size:13px;line-height:2;letter-spacing:.06em;color:var(--ink-60)}
+.cloud-status b{color:var(--vermilion);font-weight:700}
+.cloud-note{font-size:10px;color:var(--ink-38);letter-spacing:.12em;margin-top:12px;line-height:1.8}
+/* 深潮信 */
+.deep-row{margin-top:14px}
+.deep-hint{font-size:10px;color:var(--ink-38);letter-spacing:.12em;margin-top:8px}
+
 /* ---------- Toast ---------- */
 #toast{
   position:fixed;left:50%;bottom:108px;transform:translateX(-50%) translateY(16px);
@@ -505,6 +516,11 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
       </div>
       <div class="sec-rule"></div>
       <div class="letter" id="tideLetter"></div>
+      <div class="deep-row" id="deepRow" hidden>
+        <button class="btn-line" id="deepBtn" onclick="deepLetter()">深读 · 让海多说几句</button>
+        <div class="deep-hint">只依据情绪类别与次数，不读取手帖备注原文</div>
+      </div>
+      <div class="letter" id="deepLetter" hidden style="margin-top:16px;border-left-color:var(--hairline)"></div>
     </div>
 
     <div class="sec rise">
@@ -561,13 +577,42 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
       <div class="sec-head">
         <span class="sec-no">带走</span>
         <span class="sec-title">这座岛属于你</span>
-        <span class="sec-hint">数据只在你的设备</span>
+        <span class="sec-hint">默认只存于你的设备</span>
       </div>
       <div class="sec-rule"></div>
       <div class="export-row">
         <button class="btn-line" onclick="exportMD()">导出手帖 .md</button>
         <button class="btn-line" onclick="exportJSON()">备份数据 .json</button>
       </div>
+    </div>
+
+    <div class="sec rise">
+      <div class="sec-head">
+        <span class="sec-no">云屿</span>
+        <span class="sec-title">记录随行</span>
+        <span class="sec-hint" id="cloudHint">可选 · 不登船也照常记</span>
+      </div>
+      <div class="sec-rule"></div>
+      <div id="cloudOff">
+        <div class="cloud-desc">想换一台设备也不丢手帖？留一个邮箱，海会寄一封潮信（验证码）给你——免密码，随时可离船，离船后记录仍留在此设备。</div>
+        <div class="note-line cloud-line"><input type="email" id="cloudEmail" placeholder="邮箱 · 只用于寄潮信" autocomplete="email"></div>
+        <div class="cloud-row">
+          <button class="btn-line" id="cloudSendBtn" onclick="cloudSendCode()">寄出潮信</button>
+        </div>
+        <div class="note-line cloud-line"><input type="text" id="cloudCode" placeholder="收到潮信后填入，再登船" inputmode="numeric" autocomplete="one-time-code"></div>
+        <div class="cloud-row">
+          <button class="btn-line" id="cloudLoginBtn" onclick="cloudLogin()" disabled>凭信登船</button>
+        </div>
+      </div>
+      <div id="cloudOn" hidden>
+        <div class="cloud-status" id="cloudStatus"></div>
+        <div class="cloud-row">
+          <button class="btn-line" onclick="cloudSyncNow()">此刻同渡</button>
+          <button class="btn-line" onclick="cloudLogout()">离船</button>
+        </div>
+        <div class="cloud-note">在另一台设备用同一邮箱登船，手帖会自动回来。删除也会同步；离船不清数据。</div>
+      </div>
+      <div class="cloud-note" id="cloudUnavailable" hidden>此设备暂不能连上云屿（网络受限）——记录仍完整保存在本机。</div>
     </div>
   </section>
 
@@ -637,6 +682,7 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 
 <div id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
 <script>
 /* ================= 数据（schema 与 v0.1 兼容，cat2/tag2 为增量可选） ================= */
 const EMO = {
@@ -949,6 +995,8 @@ function saveEntry(){
   };
   if(sub){ it.cat2 = sub.cat; it.tag2 = sub.tag; }
   entries.push(it); save(entries);
+  const pend = loadPending(); pend.add(it.id); savePending(pend);
+  if(cloudUser) syncAll('新记录');
 
   const r = cv.getBoundingClientRect();
   dropRipple(r.width*(.3+Math.random()*.4), r.height*(.35+Math.random()*.3), ec(it.cat));
@@ -1137,6 +1185,9 @@ function entryHTML(e){
 function esc(s){ return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function delEntry(id){
   entries = entries.filter(e=> e.id !== id); save(entries);
+  const tomb = loadTomb(); tomb.push(id); saveTomb(tomb);
+  const dp = loadDelPending(); dp.add(id); saveDelPending(dp);
+  if(cloudUser) syncAll('删除');
   renderAll(); toast('已撕去这一页');
 }
 function renderTimeline(q){
@@ -1356,7 +1407,7 @@ function renderAnaBreath(){
 }
 
 function renderAnalyze(){
-  renderLetter(); renderCurve(); renderWaters(); renderAnaTrigs(); renderHours(); renderAnaBreath();
+  renderLetter(); renderDeep(); renderCurve(); renderWaters(); renderAnaTrigs(); renderHours(); renderAnaBreath();
 }
 
 /* ================= 导出 ================= */
@@ -1394,9 +1445,269 @@ function exportMD(){
 }
 function exportJSON(){
   if(!entries.length && !breathLog.length){ toast('暂无数据可备份'); return; }
-  const data = { app:'心屿·情绪手帖', version:'0.3', exportedAt:new Date().toISOString(), entries, breath_log:breathLog };
+  const data = { app:'心屿·情绪手帖', version:'0.4', exportedAt:new Date().toISOString(), entries, breath_log:breathLog };
   download(`心屿备份-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(data,null,2), 'application/json');
   toast('备份已收入下载');
+}
+
+/* ================= 云屿（可选云同步 · v0.4） =================
+   默认本地存储；登录后增量同步。记录不可编辑（只有新增/删除），
+   同步策略：新记录 pending 队列 upsert（幂等）、删除走墓碑 + 服务端删除、
+   拉取时跳过本地已有与墓碑，呼吸日志整仓合并（按 ts 键去重）。 */
+const CLOUD_CFG = {
+  endpoint: 'https://mood-isle.app.workbuddy.host',
+  publishableKey: 'wbpk_cBgcUCFvbbpYDayE0Lsy68_RqQcHSibevRRm37gmRWwh0TOmScQPjaN'
+};
+const TKEY = 'xinyu_tombstones';
+const PKEY = 'xinyu_pending';
+const DKEY2 = 'xinyu_del_pending';
+const cloudReady = typeof WorkBuddyCloud !== 'undefined';
+const cloud = cloudReady ? WorkBuddyCloud.createWorkBuddyCloud(CLOUD_CFG) : null;
+let cloudUser = null;
+let cloudSyncing = false;
+
+const loadTomb = () => { try{ return JSON.parse(localStorage.getItem(TKEY)) || []; }catch(e){ return []; } };
+const saveTomb = (l) => localStorage.setItem(TKEY, JSON.stringify(l.slice(-500)));
+const loadPending = () => { try{ return new Set(JSON.parse(localStorage.getItem(PKEY)) || []); }catch(e){ return new Set(); } };
+const savePending = (s) => localStorage.setItem(PKEY, JSON.stringify([...s]));
+const loadDelPending = () => { try{ return new Set(JSON.parse(localStorage.getItem(DKEY2)) || []); }catch(e){ return new Set(); } };
+const saveDelPending = (s) => localStorage.setItem(DKEY2, JSON.stringify([...s]));
+
+function maskEmail(em){
+  if(!em || !em.includes('@')) return '';
+  const [a, b] = em.split('@');
+  return a.slice(0,1) + '***@' + b;
+}
+function updateCloudStatus(s){
+  const el = document.getElementById('cloudStatus');
+  if(el) el.innerHTML = `已登船 · <b>${maskEmail(cloudUser && cloudUser.email)}</b><br>${s}`;
+}
+function renderCloudUI(){
+  const off = document.getElementById('cloudOff');
+  const on = document.getElementById('cloudOn');
+  const un = document.getElementById('cloudUnavailable');
+  if(!cloudReady){ off.hidden = true; on.hidden = true; un.hidden = false; return; }
+  un.hidden = true;
+  off.hidden = !!cloudUser;
+  on.hidden = !cloudUser;
+  document.getElementById('cloudHint').textContent = cloudUser ? '已登船 · 数据两端随行' : '可选 · 不登船也照常记';
+  if(cloudUser) updateCloudStatus('待同渡');
+}
+
+async function cloudSession(){
+  if(!cloud) return null;
+  try{ const res = await cloud.auth.getSession(); return (res && res.data) || null; }
+  catch(e){ return null; }
+}
+async function cloudInit(){
+  renderCloudUI();
+  if(!cloud) return;
+  const s = await cloudSession();
+  cloudUser = s && s.user ? s.user : null;
+  renderCloudUI();
+  if(cloudUser) syncAll('靠岸');
+}
+
+let pendingEmailOtp = null;
+async function cloudSendCode(){
+  if(!cloud) return;
+  const email = document.getElementById('cloudEmail').value.trim().toLowerCase();
+  if(!/^\S+@\S+\.\S+$/.test(email)){ toast('先留下一个邮箱'); return; }
+  const btn = document.getElementById('cloudSendBtn');
+  btn.disabled = true; btn.textContent = '潮信寄送中…';
+  let sent;
+  try{ sent = await cloud.auth.sendOtp({ email }); }
+  catch(e){ sent = { error: e }; }
+  btn.disabled = false; btn.textContent = '寄出潮信';
+  if(!sent || sent.error){ toast('潮信寄出未成，稍后再试'); return; }
+  pendingEmailOtp = { email, verificationId: sent.data.verificationId, isExistingUser: sent.data.isExistingUser };
+  document.getElementById('cloudLoginBtn').disabled = false;
+  document.getElementById('cloudCode').focus();
+  toast('潮信已寄出，去邮箱看看');
+}
+async function cloudLogin(){
+  if(!cloud) return;
+  if(!pendingEmailOtp){ toast('先寄出一封潮信'); return; }
+  const code = document.getElementById('cloudCode').value.trim();
+  if(!code){ toast('先填入收到的潮信'); return; }
+  const btn = document.getElementById('cloudLoginBtn');
+  btn.disabled = true; btn.textContent = '登船中…';
+  let done;
+  try{
+    done = await cloud.auth.verifyOtp({
+      email: pendingEmailOtp.email,
+      verificationId: pendingEmailOtp.verificationId,
+      isExistingUser: pendingEmailOtp.isExistingUser,
+      token: code
+    });
+  }catch(e){ done = { error: e }; }
+  btn.disabled = false; btn.textContent = '凭信登船';
+  if(!done || done.error){ toast('登船未成：潮信可能已过期，请重寄一封'); pendingEmailOtp = null; document.getElementById('cloudLoginBtn').disabled = true; return; }
+  pendingEmailOtp = null;
+  cloudUser = done.data.user;
+  document.getElementById('cloudCode').value = '';
+  renderCloudUI();
+  await syncAll('登船');
+  toast('已登船 · 手帖开始随行');
+}
+async function cloudLogout(){
+  if(!cloud) return;
+  try{ await cloud.auth.signOut(); }catch(e){}
+  cloudUser = null;
+  renderCloudUI();
+  toast('已离船 · 记录都留在这台设备');
+}
+function cloudSyncNow(){ if(cloudUser) syncAll('手动同渡'); }
+
+function entryToRow(e){
+  const r = { entry_id: e.id, cat: e.cat, tag: e.tag, intensity: e.intensity, triggers: e.triggers || [], note: e.note || '', ts: e.ts };
+  if(e.cat2){ r.cat2 = e.cat2; r.tag2 = e.tag2; }
+  return r;
+}
+function rowToEntry(r){
+  const e = { id: r.entry_id, cat: r.cat, tag: r.tag, intensity: r.intensity, triggers: r.triggers || [], note: r.note || '', ts: r.ts };
+  if(r.cat2){ e.cat2 = r.cat2; e.tag2 = r.tag2; }
+  return e;
+}
+const breathKeyOf = (b) => `${b.ts}:${b.before ?? ''}:${b.after ?? ''}`;
+
+async function syncAll(reason){
+  if(!cloud || !cloudUser || cloudSyncing) return;
+  cloudSyncing = true;
+  updateCloudStatus(`同渡中（${reason}）…`);
+  let failed = false;
+  try{
+    const pend = loadPending();
+    if(pend.size){
+      const rows = entries.filter(e=> pend.has(e.id)).map(entryToRow);
+      if(rows.length){
+        const res = await cloud.database.from('mood_entries')
+          .upsert(rows, { onConflict: 'owner_id,entry_id', ignoreDuplicates: true });
+        if(res.error) failed = true; else { pend.clear(); savePending(pend); }
+      }else{ pend.clear(); savePending(pend); }
+    }
+    const dp = loadDelPending();
+    if(dp.size && !failed){
+      await cloud.database.from('mood_entries').delete().in('entry_id', [...dp]).select();
+      saveDelPending([]);
+    }
+    if(!failed){
+      const tomb = new Set(loadTomb());
+      const localIds = new Set(entries.map(e=> e.id));
+      const res = await cloud.database.from('mood_entries')
+        .select('entry_id,cat,tag,cat2,tag2,intensity,triggers,note,ts')
+        .order('entry_id', { ascending: true }).limit(2000);
+      if(res.error){ failed = true; }
+      else{
+        const fresh = (res.data || [])
+          .filter(r=> !localIds.has(r.entry_id) && !tomb.has(r.entry_id))
+          .map(rowToEntry);
+        if(fresh.length){
+          entries = entries.concat(fresh).sort((a,b)=> a.ts - b.ts);
+          save(entries);
+        }
+      }
+    }
+    if(!failed){
+      const res = await cloud.database.from('user_blobs')
+        .select('payload').eq('key', 'breath_log').maybeSingle();
+      if(res.error){ failed = true; }
+      else{
+        const remote = res.data && Array.isArray(res.data.payload) ? res.data.payload : [];
+        const seen = new Set(breathLog.map(breathKeyOf));
+        const add = remote.filter(b=> b && b.ts && !seen.has(breathKeyOf(b)));
+        if(add.length){ breathLog = breathLog.concat(add).sort((a,b)=> a.ts - b.ts); saveBlog(breathLog); }
+        await cloud.database.from('user_blobs')
+          .upsert({ key: 'breath_log', payload: breathLog }, { onConflict: 'owner_id,key' });
+      }
+    }
+    if(failed){
+      updateCloudStatus('这一程同渡没有走完 · 稍后点「此刻同渡」再试');
+    }else{
+      if(typeof renderAll === 'function') renderAll();
+      updateCloudStatus(`上次同渡 ${new Date().toLocaleTimeString('zh-CN',{hour12:false})}`);
+    }
+  }catch(e){
+    updateCloudStatus('这一程同渡没有走完 · 稍后点「此刻同渡」再试');
+  }
+  cloudSyncing = false;
+}
+
+/* ================= 深潮信（LLM 周结 · 只读结构化摘要，不读备注原文） ================= */
+const DLKEY = 'xinyu_deep_letter';
+const DEEP_SYS = '你是「心屿」情绪手帖里的海。用户会给你一周情绪记录的结构化摘要（情绪类别、强度、时辰、诱因的次数统计，不含任何备注原文）。请用中文写一段 80 到 150 字的信：第二人称称呼"你"；语气温柔平实、只贴近摘要里的事实，不诊断、不评判、不给建议；不用 emoji；最多一个句号外的感叹也不要用；结尾落回"海一直在"的意象。直接输出正文，不要标题和署名。';
+function deepWeekKey(){ return String(Math.floor(Date.now() / (7*864e5))); }
+function loadDeepCache(){
+  try{ const c = JSON.parse(localStorage.getItem(DLKEY)); return (c && c.k === deepWeekKey()) ? c : null; }catch(e){ return null; }
+}
+function saveDeepCache(text){ try{ localStorage.setItem(DLKEY, JSON.stringify({ k: deepWeekKey(), text })); }catch(e){} }
+function renderDeep(){
+  const row = document.getElementById('deepRow');
+  const box = document.getElementById('deepLetter');
+  const week = entries.filter(e=> e.ts >= Date.now() - 7*864e5);
+  const cache = loadDeepCache();
+  if(cloudReady && week.length >= 3){
+    row.hidden = false;
+    if(cache){ box.textContent = cache.text; box.hidden = false; }
+  }else{
+    row.hidden = true;
+    if(!cache) box.hidden = true;
+  }
+}
+async function deepLetter(){
+  if(!cloud) return;
+  const week = entries.filter(e=> e.ts >= Date.now() - 7*864e5);
+  if(week.length < 3){ toast('这一周的潮讯还太少，先记满三笔'); return; }
+  const btn = document.getElementById('deepBtn');
+  const box = document.getElementById('deepLetter');
+  btn.disabled = true; btn.textContent = '海正在回信…';
+  const c = {}, tc = {}, bk = {晨:0,昼:0,暮:0,夜:0};
+  let itSum = 0;
+  week.forEach(e=>{
+    c[EMO[e.cat].cat] = (c[EMO[e.cat].cat]||0) + 1;
+    if(e.cat2) c[EMO[e.cat2].cat] = (c[EMO[e.cat2].cat]||0) + .5;
+    (e.triggers||[]).forEach(t=> tc[t] = (tc[t]||0) + 1);
+    bk[bucketOf(new Date(e.ts).getHours())]++;
+    itSum += e.intensity;
+  });
+  const summary = {
+    记录笔数: week.length,
+    情绪类别次数: c,
+    诱因次数: tc,
+    时辰分布: bk,
+    平均强度: Math.round(itSum / week.length * 10) / 10
+  };
+  box.hidden = false;
+  box.textContent = '';
+  try{
+    const models = await cloud.llm.models.list();
+    const model = (models || []).find(m=> m.disabled !== true);
+    if(!model) throw new Error('no model');
+    let answer = '';
+    for await (const chunk of cloud.llm.chat.completions.create({
+      model: model.id,
+      messages: [
+        { role: 'system', content: DEEP_SYS },
+        { role: 'user', content: JSON.stringify(summary) }
+      ],
+      stream: true,
+      temperature: 0.8
+    })){
+      const d = chunk.choices && chunk.choices[0] && chunk.choices[0].delta;
+      if(d && d.content){ answer += d.content; box.textContent = answer; }
+    }
+    if(answer.trim()){
+      saveDeepCache(answer.trim());
+      box.textContent = answer.trim();
+    }else{
+      box.hidden = true;
+      toast('海这次没说出什么，稍后再试');
+    }
+  }catch(e){
+    box.hidden = true;
+    toast('海此刻说不上话 · 稍后再试');
+  }
+  btn.disabled = false; btn.textContent = '深读 · 让海多说几句';
 }
 
 /* ================= 望月呼吸 ================= */
@@ -1424,6 +1735,7 @@ function pickFb(v, btn){
   btn.classList.add('on');
   breathLog.push({ts: Date.now(), before: breathBefore, after: v});
   saveBlog(breathLog);
+  if(cloudUser) syncAll('呼吸');
   const res = document.getElementById('fbRes');
   if(breathBefore){
     const d = breathBefore - v;
@@ -1527,7 +1839,7 @@ function observeRise(){
   document.querySelectorAll('.rise:not(.in)').forEach(el=> riseIO.observe(el));
 }
 
-initAcc(); initTrigs(); setIntensity(3); renderAll(); observeRise();
+initAcc(); initTrigs(); setIntensity(3); renderAll(); observeRise(); cloudInit();
 </script>
 </body>
 </html>
