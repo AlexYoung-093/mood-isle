@@ -7,7 +7,7 @@
 <title>心屿 · 情绪手帖</title>
 <style>
 /* ============================================================
-   心屿 v0.3「观澜」
+   心屿 v0.5
    纸为底 · 墨为字 · 朱砂为印 · 潮为动 · 记录有回声
    ============================================================ */
 :root{
@@ -391,6 +391,37 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 .deep-row{margin-top:14px}
 .deep-hint{font-size:10px;color:var(--ink-38);letter-spacing:.12em;margin-top:8px}
 
+/* ---------- 新手引导 ---------- */
+#tour{position:fixed;inset:0;z-index:300}
+.tour-mask{position:absolute;inset:0}
+.tour-spot{
+  position:fixed;border-radius:6px;pointer-events:none;
+  box-shadow:0 0 0 4000px rgba(24,20,14,.62);
+  transition:left .45s var(--ease-ink),top .45s var(--ease-ink),width .45s var(--ease-ink),height .45s var(--ease-ink);
+}
+.tour-card{
+  position:fixed;left:50%;transform:translateX(-50%);width:min(330px,calc(100vw - 40px));
+  background:var(--paper);border:1px solid var(--hairline);padding:20px 20px 16px;
+  box-shadow:0 12px 44px rgba(24,20,14,.3);animation:pageIn .4s var(--ease-out);
+  transition:top .45s var(--ease-ink);
+}
+.tour-step{font-size:10px;color:var(--vermilion);letter-spacing:.25em;font-family:var(--serif)}
+.tour-title{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.08em;margin-top:6px}
+.tour-text{font-size:12.5px;color:var(--ink-60);line-height:1.9;margin-top:8px}
+.tour-acts{display:flex;align-items:center;gap:12px;margin-top:16px}
+.tour-dots{display:flex;gap:5px}
+.tour-dots i{width:5px;height:5px;border-radius:50%;background:var(--hairline)}
+.tour-dots i.on{background:var(--vermilion)}
+.tour-skip{border:none;background:none;font-size:11px;color:var(--ink-38);cursor:pointer;letter-spacing:.1em;padding:4px 0}
+.tour-skip:hover{color:var(--ink)}
+.tour-next{
+  margin-left:auto;border:1px solid var(--vermilion);background:none;color:var(--vermilion);
+  font-family:var(--serif);font-size:12.5px;letter-spacing:.2em;padding:9px 18px;cursor:pointer;transition:.3s;
+}
+.tour-next:hover{background:var(--vermilion);color:var(--paper)}
+.help-link{margin-top:16px;font-size:11px;color:var(--ink-38);cursor:pointer;letter-spacing:.12em;text-align:center;transition:color .3s}
+.help-link:hover{color:var(--vermilion)}
+
 /* ---------- Toast ---------- */
 #toast{
   position:fixed;left:50%;bottom:108px;transform:translateX(-50%) translateY(16px);
@@ -441,25 +472,25 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
       <div class="sec-head">
         <span class="sec-no">其一</span>
         <span class="sec-title">此刻的情绪</span>
-        <span class="sec-hint">可择两味 · 一主一伴</span>
+        <span class="sec-hint">选 1-2 个标签</span>
       </div>
       <div class="sec-rule"></div>
       <div id="emoAcc"></div>
-      <div class="acc-note">情绪很少是单色——若一言难尽，可再择一味相伴。</div>
+      <div class="acc-note">情绪常常是混合的：拿不准时，可以再选一个作为「相伴情绪」。</div>
     </div>
 
     <div class="sec rise">
       <div class="sec-head">
         <span class="sec-no">其二</span>
-        <span class="sec-title">潮有多高</span>
-        <span class="sec-hint">点选浪峰</span>
+        <span class="sec-title">情绪有多强烈</span>
+        <span class="sec-hint">点选或拖动浪峰</span>
       </div>
       <div class="sec-rule"></div>
       <div class="ruler" id="ruler">
         <svg id="rulerSvg" viewBox="0 0 300 74" preserveAspectRatio="none" aria-label="情绪强度"></svg>
         <div class="ruler-word">
           <span class="name" id="waveName">涌浪 · <em>三</em></span>
-          <span class="scale">微澜 —— 怒潮</span>
+          <span class="scale">轻微 —— 强烈</span>
         </div>
       </div>
     </div>
@@ -467,8 +498,8 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
     <div class="sec rise">
       <div class="sec-head">
         <span class="sec-no">其三</span>
-        <span class="sec-title">因何而起</span>
-        <span class="sec-hint">可不选 · 一句话就好</span>
+        <span class="sec-title">是什么引起的</span>
+        <span class="sec-hint">可不填</span>
       </div>
       <div class="sec-rule"></div>
       <div class="trigs" id="trigChips"></div>
@@ -478,27 +509,29 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
       </div>
     </div>
 
-    <button class="seal-btn rise" id="saveBtn" onclick="saveEntry()">落笔存屿</button>
+    <button class="seal-btn rise" id="saveBtn" onclick="saveEntry()">保存记录</button>
 
     <div class="suggest" id="breathSuggest" hidden>
-      <span class="corner">宜缓</span>
-      <p><b>浪急了。</b>高强度的情绪涌上来时，先照顾自己一分钟——试试 4-7-8 呼吸，等潮头过去。</p>
-      <button class="go" onclick="openBreath(true)">随月呼吸 →</button>
+      <span class="corner">建议</span>
+      <p><b>这次情绪强度较高。</b>先照顾自己一分钟——跟着月亮做 4-7-8 呼吸，等这阵情绪过去。</p>
+      <button class="go" onclick="openBreath(true)">开始呼吸练习 →</button>
     </div>
 
-    <div class="breath-link rise" onclick="openBreath(false)">无情绪可记？<b>对月自由呼吸一分钟</b></div>
+    <div class="breath-link rise" onclick="openBreath(false)">现在不想记录？<b>也可以直接做 1 分钟呼吸练习</b></div>
 
     <div class="sec rise">
       <div class="sec-head">
         <span class="sec-no">今日</span>
-        <span class="sec-title">已靠岸的记录</span>
-        <span class="sec-hint">海不催人</span>
+        <span class="sec-title">今天已保存的记录</span>
+        <span class="sec-hint">想记就记</span>
       </div>
       <div class="sec-rule"></div>
-      <div class="shore-cap">本周岸线 · 来过就好，缺席亦是留白</div>
+      <div class="shore-cap">本周记录一览 · 记不记随你，没有打卡任务</div>
       <div class="shore" id="shore"></div>
       <div id="todayList"></div>
     </div>
+
+    <div class="help-link" onclick="startTour(true)">使用指南 · 重看新手引导</div>
 
     <div class="hotline">
       心屿陪你，但不能替代专业帮助<br>
@@ -511,35 +544,36 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 
     <div class="sec rise" style="margin-top:34px">
       <div class="sec-head">
-        <span class="sec-no">潮信</span>
-        <span class="sec-title">这一周，海想对你说</span>
+        <span class="sec-no">每周</span>
+        <span class="sec-title">本周情绪小结</span>
+        <span class="sec-hint">根据记录自动生成</span>
       </div>
       <div class="sec-rule"></div>
       <div class="letter" id="tideLetter"></div>
       <div class="deep-row" id="deepRow" hidden>
-        <button class="btn-line" id="deepBtn" onclick="deepLetter()">深读 · 让海多说几句</button>
-        <div class="deep-hint">只依据情绪类别与次数，不读取手帖备注原文</div>
+        <button class="btn-line" id="deepBtn" onclick="deepLetter()">生成 AI 深度小结</button>
+        <div class="deep-hint">只依据情绪类别与次数生成，不读取备注原文；生成约需 1-2 分钟</div>
       </div>
       <div class="letter" id="deepLetter" hidden style="margin-top:16px;border-left-color:var(--hairline)"></div>
     </div>
 
     <div class="sec rise">
       <div class="sec-head">
-        <span class="sec-no">潮位</span>
-        <span class="sec-title">近三十日的浪</span>
+        <span class="sec-no">趋势</span>
+        <span class="sec-title">近 30 天情绪强度曲线</span>
         <span class="sec-hint" id="curveCnt"></span>
       </div>
       <div class="sec-rule"></div>
       <div class="curve-box">
         <svg id="curveSvg" viewBox="0 0 340 130" preserveAspectRatio="none"></svg>
-        <div class="curve-scale"><span>三十日前</span><span>微澜 —— 怒潮</span><span>今日</span></div>
+        <div class="curve-scale"><span>30 天前</span><span>弱 —— 强</span><span>今天</span></div>
       </div>
     </div>
 
     <div class="sec rise">
       <div class="sec-head">
-        <span class="sec-no">水域</span>
-        <span class="sec-title">情绪的构成</span>
+        <span class="sec-no">构成</span>
+        <span class="sec-title">情绪类型占比</span>
       </div>
       <div class="sec-rule"></div>
       <div id="anaWaters"></div>
@@ -548,8 +582,8 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
     <div class="sec rise">
       <div class="sec-head">
         <span class="sec-no">诱因</span>
-        <span class="sec-title">潮从何处起</span>
-        <span class="sec-hint">前五</span>
+        <span class="sec-title">常见诱因（前五）</span>
+        <span class="sec-hint">多选过才会统计</span>
       </div>
       <div class="sec-rule"></div>
       <div id="anaTrigs"></div>
@@ -557,8 +591,8 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 
     <div class="sec rise">
       <div class="sec-head">
-        <span class="sec-no">时辰</span>
-        <span class="sec-title">潮水偏爱何时</span>
+        <span class="sec-no">时段</span>
+        <span class="sec-title">记录时段分布</span>
       </div>
       <div class="sec-rule"></div>
       <div class="hours" id="anaHours"></div>
@@ -566,8 +600,8 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 
     <div class="sec rise">
       <div class="sec-head">
-        <span class="sec-no">调匀</span>
-        <span class="sec-title">呼吸的回响</span>
+        <span class="sec-no">呼吸</span>
+        <span class="sec-title">呼吸练习效果</span>
       </div>
       <div class="sec-rule"></div>
       <div class="breath-stat-line" id="anaBreath"></div>
@@ -575,62 +609,62 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 
     <div class="sec rise">
       <div class="sec-head">
-        <span class="sec-no">带走</span>
-        <span class="sec-title">这座岛属于你</span>
+        <span class="sec-no">数据</span>
+        <span class="sec-title">导出与备份</span>
         <span class="sec-hint">默认只存于你的设备</span>
       </div>
       <div class="sec-rule"></div>
       <div class="export-row">
-        <button class="btn-line" onclick="exportMD()">导出手帖 .md</button>
-        <button class="btn-line" onclick="exportJSON()">备份数据 .json</button>
+        <button class="btn-line" onclick="exportMD()">导出文字版 .md</button>
+        <button class="btn-line" onclick="exportJSON()">备份全部数据 .json</button>
       </div>
     </div>
 
     <div class="sec rise">
       <div class="sec-head">
-        <span class="sec-no">云屿</span>
-        <span class="sec-title">记录随行</span>
-        <span class="sec-hint" id="cloudHint">可选 · 不登船也照常记</span>
+        <span class="sec-no">同步</span>
+        <span class="sec-title">云同步（可选）</span>
+        <span class="sec-hint" id="cloudHint">不登录也能正常使用</span>
       </div>
       <div class="sec-rule"></div>
       <div id="cloudOff">
-        <div class="cloud-desc">想换一台设备也不丢手帖？留一个邮箱，海会寄一封潮信（验证码）给你——免密码，随时可离船，离船后记录仍留在此设备。</div>
-        <div class="note-line cloud-line"><input type="email" id="cloudEmail" placeholder="邮箱 · 只用于寄潮信" autocomplete="email"></div>
+        <div class="cloud-desc">想在多台设备间同步记录？输入邮箱收一个验证码即可登录——免密码，随时可以退出，退出后记录仍保留在这台设备上。</div>
+        <div class="note-line cloud-line"><input type="email" id="cloudEmail" placeholder="输入邮箱，用于接收验证码" autocomplete="email"></div>
         <div class="cloud-row">
-          <button class="btn-line" id="cloudSendBtn" onclick="cloudSendCode()">寄出潮信</button>
+          <button class="btn-line" id="cloudSendBtn" onclick="cloudSendCode()">发送验证码</button>
         </div>
-        <div class="note-line cloud-line"><input type="text" id="cloudCode" placeholder="收到潮信后填入，再登船" inputmode="numeric" autocomplete="one-time-code"></div>
+        <div class="note-line cloud-line"><input type="text" id="cloudCode" placeholder="输入收到的验证码" inputmode="numeric" autocomplete="one-time-code"></div>
         <div class="cloud-row">
-          <button class="btn-line" id="cloudLoginBtn" onclick="cloudLogin()" disabled>凭信登船</button>
+          <button class="btn-line" id="cloudLoginBtn" onclick="cloudLogin()" disabled>登录</button>
         </div>
       </div>
       <div id="cloudOn" hidden>
         <div class="cloud-status" id="cloudStatus"></div>
         <div class="cloud-row">
-          <button class="btn-line" onclick="cloudSyncNow()">此刻同渡</button>
-          <button class="btn-line" onclick="cloudLogout()">离船</button>
+          <button class="btn-line" onclick="cloudSyncNow()">立即同步</button>
+          <button class="btn-line" onclick="cloudLogout()">退出登录</button>
         </div>
-        <div class="cloud-note">在另一台设备用同一邮箱登船，手帖会自动回来。删除也会同步；离船不清数据。</div>
+        <div class="cloud-note">在另一台设备用同一邮箱登录，记录会自动同步过来；删除也会同步；退出登录不会删除本机数据。</div>
       </div>
-      <div class="cloud-note" id="cloudUnavailable" hidden>此设备暂不能连上云屿（网络受限）——记录仍完整保存在本机。</div>
+      <div class="cloud-note" id="cloudUnavailable" hidden>当前网络无法连接云服务——记录仍完整保存在本机。</div>
     </div>
   </section>
 
   <!-- ============ 回顾页 ============ -->
   <section id="page-review" hidden>
     <div class="seg">
-      <button class="on" id="segCal" onclick="switchView('cal')">潮汐表</button>
-      <button id="segTl" onclick="switchView('tl')">手帖页</button>
+      <button class="on" id="segCal" onclick="switchView('cal')">日历</button>
+      <button id="segTl" onclick="switchView('tl')">全部记录</button>
     </div>
 
-    <div class="month-bar">
+    <div class="month-bar" id="monthBar">
       <button onclick="moveMonth(-1)" aria-label="上一月">‹</button>
       <b id="monthLabel">2026年9月</b>
       <button onclick="moveMonth(1)" aria-label="下一月">›</button>
     </div>
 
-    <div class="week-wrap">
-      <div class="week-cap"><span>近七日潮色</span><span id="weekCnt"></span></div>
+    <div class="week-wrap" id="weekWrap">
+      <div class="week-cap"><span>近 7 天情绪分布</span><span id="weekCnt"></span></div>
       <div class="week-bar" id="weekBar"></div>
       <div class="legend" id="legend"></div>
     </div>
@@ -645,7 +679,7 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 
     <div id="tlWrap" hidden>
       <div class="note-line search-line">
-        <input type="text" id="tlSearch" placeholder="寻一笔：备注、情绪、诱因……">
+        <input type="text" id="tlSearch" placeholder="搜索：备注、情绪、诱因……">
       </div>
       <div id="timeline"></div>
     </div>
@@ -655,8 +689,8 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
 <nav class="tabbar">
   <div class="inner">
     <button class="on" id="tab-record" onclick="switchTab('record')"><span class="zi">记</span><span class="lb">记录</span></button>
-    <button id="tab-analyze" onclick="switchTab('analyze')"><span class="zi">观</span><span class="lb">观澜</span></button>
-    <button id="tab-review" onclick="switchTab('review')"><span class="zi">溯</span><span class="lb">回溯</span></button>
+    <button id="tab-analyze" onclick="switchTab('analyze')"><span class="zi">析</span><span class="lb">分析</span></button>
+    <button id="tab-review" onclick="switchTab('review')"><span class="zi">顾</span><span class="lb">回顾</span></button>
   </div>
 </nav>
 
@@ -665,17 +699,33 @@ body.night .tabbar{background:rgba(27,24,18,.88)}
   <div class="stars" id="stars"></div>
   <div class="breath-box">
     <h3>望月呼吸</h3>
-    <div class="hint">随月涨落 · 吸四息 → 屏七息 → 呼八息</div>
-    <div class="moon-wrap"><div class="moon" id="moon"><span id="moonText">候月</span></div></div>
-    <div class="breath-stat" id="breathStat">共四轮 · 约一分钟</div>
+    <div class="hint">4-7-8 呼吸法 · 吸气 4 秒 → 屏息 7 秒 → 呼气 8 秒</div>
+    <div class="moon-wrap"><div class="moon" id="moon"><span id="moonText">准备</span></div></div>
+    <div class="breath-stat" id="breathStat">共 4 轮 · 约 1 分钟</div>
     <div class="breath-fb" id="breathFb" hidden>
-      <div class="fb-q">此刻的浪？</div>
+      <div class="fb-q">现在感觉强度如何？</div>
       <div class="fb-opts" id="fbOpts"></div>
       <div class="fb-res" id="fbRes"></div>
     </div>
     <div class="breath-acts" id="breathActs">
-      <button class="btn-moon" onclick="closeBreath()">离席</button>
+      <button class="btn-moon" onclick="closeBreath()">退出</button>
       <button class="btn-ink" id="breathStart" onclick="startBreath()">开始</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新手引导 -->
+<div id="tour" hidden>
+  <div class="tour-mask"></div>
+  <div class="tour-spot" id="tourSpot"></div>
+  <div class="tour-card" id="tourCard">
+    <div class="tour-step" id="tourStep"></div>
+    <div class="tour-title" id="tourTitle"></div>
+    <div class="tour-text" id="tourText"></div>
+    <div class="tour-acts">
+      <div class="tour-dots" id="tourDots"></div>
+      <button class="tour-skip" onclick="endTour()">跳过</button>
+      <button class="tour-next" id="tourNext" onclick="nextTour()">下一步</button>
     </div>
   </div>
 </div>
@@ -913,7 +963,7 @@ function initAcc(){
 function pickTag(el, key, tag){
   const idx = selTags.findIndex(s=> s.cat===key && s.tag===tag);
   if(idx >= 0){ selTags.splice(idx,1); }
-  else if(selTags.length >= 2){ toast('最多两味情绪，一主一伴'); return; }
+  else if(selTags.length >= 2){ toast('最多选 2 个情绪'); return; }
   else{ selTags.push({cat:key, tag}); }
   paintTags();
 }
@@ -949,7 +999,7 @@ function drawRuler(){
 function setIntensity(v){
   intensity = Math.max(1, Math.min(5, v));
   drawRuler();
-  document.getElementById('waveName').innerHTML = `${WAVES[intensity]} · <em>${CN[intensity-1]}</em>`;
+  document.getElementById('waveName').innerHTML = `${WAVES[intensity]} · <em>${intensity} / 5</em>`;
 }
 (function(){
   const svg = document.getElementById('rulerSvg');
@@ -983,15 +1033,16 @@ document.getElementById('note').addEventListener('input', e=>{
 
 /* ================= 保存 ================= */
 function saveEntry(){
-  if(!selTags.length){ toast('先择一个此刻的情绪'); return; }
+  if(!selTags.length){ toast('请先选择一个情绪标签'); return; }
   const main = selTags[0], sub = selTags[1];
+  const now = Date.now();
   const it = {
-    id: Date.now(),
+    id: now*1000 + Math.floor(Math.random()*1000),
     cat: main.cat, tag: main.tag,
     intensity,
     triggers: [...selTriggers],
     note: document.getElementById('note').value.trim(),
-    ts: Date.now()
+    ts: now
   };
   if(sub){ it.cat2 = sub.cat; it.tag2 = sub.tag; }
   entries.push(it); save(entries);
@@ -1013,7 +1064,7 @@ function saveEntry(){
   setIntensity(3);
   renderAll();
 
-  const praise = ['已收入今日潮汐','辛苦了，海记得','落笔即成岸'][Math.floor(Math.random()*3)];
+  const praise = ['已保存','保存成功，辛苦了','已存进今日记录'][Math.floor(Math.random()*3)];
   toast(praise);
   const suggest = document.getElementById('breathSuggest');
   const negHit = NEG.includes(it.cat) || (it.cat2 && NEG.includes(it.cat2));
@@ -1030,7 +1081,7 @@ function renderToday(){
   const box = document.getElementById('todayList');
   const today = new Date(); today.setHours(0,0,0,0);
   const list = entries.filter(e=> e.ts >= today.getTime()).sort((a,b)=> b.ts - a.ts);
-  if(!list.length){ box.innerHTML = '<div class="empty">今日尚无记录，第一笔就趁现在</div>'; return; }
+  if(!list.length){ box.innerHTML = '<div class="empty">今天还没有记录，写第一笔就趁现在</div>'; return; }
   box.innerHTML = list.map(e=>{
     return `<div class="today-row">
       <span class="dot" style="background:${ec(e.cat)}"></span>
@@ -1073,6 +1124,8 @@ function switchView(v){
   document.getElementById('segTl').classList.toggle('on', v==='tl');
   document.getElementById('calWrap').hidden = v!=='cal';
   document.getElementById('tlWrap').hidden = v!=='tl';
+  document.getElementById('monthBar').hidden = v!=='cal';
+  document.getElementById('weekWrap').hidden = v!=='cal';
   if(v==='tl') renderTimeline(document.getElementById('tlSearch').value.trim());
 }
 function moveMonth(d){
@@ -1161,7 +1214,7 @@ function renderDayDetail(){
   const wd = ['日','一','二','三','四','五','六'][new Date(y,m,selDate).getDay()];
   if(!list.length){
     box.innerHTML = `<div class="day-head"><b>${m+1}月${selDate}日</b><span>周${wd}</span></div>
-      <div class="day-rule"></div><div class="empty">这一日无潮讯</div>`;
+      <div class="day-rule"></div><div class="empty">这一天没有记录</div>`;
     return;
   }
   box.innerHTML = `<div class="day-head"><b>${m+1}月${selDate}日</b><span>周${wd} · ${list.length} 笔</span></div>
@@ -1188,7 +1241,7 @@ function delEntry(id){
   const tomb = loadTomb(); tomb.push(id); saveTomb(tomb);
   const dp = loadDelPending(); dp.add(id); saveDelPending(dp);
   if(cloudUser) syncAll('删除');
-  renderAll(); toast('已撕去这一页');
+  renderAll(); toast('已删除这条记录');
 }
 function renderTimeline(q){
   q = (q||'').trim();
@@ -1202,7 +1255,7 @@ function renderTimeline(q){
   }
   const box = document.getElementById('timeline');
   if(!list.length){
-    box.innerHTML = `<div class="empty" style="padding-top:34px">${q? '海里寻不到这一笔' : '手帖尚是空白<br>去「记」页写下第一笔'}</div>`;
+    box.innerHTML = `<div class="empty" style="padding-top:34px">${q? '没有找到匹配的记录' : '还没有任何记录<br>去「记录」页写下第一笔'}</div>`;
     return;
   }
   let html = '', lastDay = '';
@@ -1309,7 +1362,7 @@ function renderCurve(){
     } : null);
   }
   const yOf = v => bot - (v-1)/4*(bot-top);
-  document.getElementById('curveCnt').textContent = `${days.filter(Boolean).length} 日有潮`;
+  document.getElementById('curveCnt').textContent = `${days.filter(Boolean).length} 天有记录`;
   let html = '';
   [1,3,5].forEach(v=>{
     html += `<line x1="${padL}" y1="${yOf(v)}" x2="${W-padR}" y2="${yOf(v)}" style="stroke:var(--hairline-soft)" stroke-width="1" stroke-dasharray="2 4"/>`;
@@ -1392,15 +1445,15 @@ function renderHours(){
 function renderAnaBreath(){
   const box = document.getElementById('anaBreath');
   if(!breathLog.length){
-    box.innerHTML = '尚未对月呼吸过。浪急的时候，去「记」页点「对月自由呼吸」，潮退了几级，海会替你记下。';
+    box.innerHTML = '还没有做过呼吸练习。情绪波动大的时候，在「记录」页点「1 分钟呼吸练习」，练完选择当下的强度，这里会帮你统计效果。';
     return;
   }
   const pairs = breathLog.filter(b=> b.before && b.after);
-  let s = `共调匀 <b>${breathLog.length}</b> 次`;
+  let s = `共练习 <b>${breathLog.length}</b> 次`;
   if(pairs.length){
     const drop = pairs.reduce((sum,b)=> sum + (b.before - b.after), 0) / pairs.length;
-    if(drop > 0.05) s += ` · 有 ${pairs.length} 次记下对比 · 平均潮退 <b>${drop.toFixed(1)}</b> 级`;
-    else s += ` · 有 ${pairs.length} 次记下对比 · 潮位有起有落，调匀还在继续`;
+    if(drop > 0.05) s += ` · 其中 ${pairs.length} 次记录了练前练后对比 · 强度平均下降 <b>${drop.toFixed(1)}</b> 级`;
+    else s += ` · 其中 ${pairs.length} 次记录了练前练后对比 · 强度有升有降，继续观察`;
   }
   s += '。';
   box.innerHTML = s;
@@ -1420,7 +1473,7 @@ function download(name, text, mime){
   setTimeout(()=> URL.revokeObjectURL(a.href), 4000);
 }
 function exportMD(){
-  if(!entries.length){ toast('手帖还是空白，无物可导'); return; }
+  if(!entries.length){ toast('还没有记录，无可导出'); return; }
   const wd = ['日','一','二','三','四','五','六'];
   const groups = {};
   [...entries].sort((a,b)=> a.ts - b.ts).forEach(e=>{
@@ -1441,13 +1494,13 @@ function exportMD(){
   });
   md += `\n---\n心屿陪你，但不替代专业帮助。全国心理援助热线 12356（24 小时）。\n`;
   download(`心屿手帖-${new Date().toISOString().slice(0,10)}.md`, md, 'text/markdown;charset=utf-8');
-  toast('手帖已收入下载');
+  toast('已导出 Markdown 文件');
 }
 function exportJSON(){
   if(!entries.length && !breathLog.length){ toast('暂无数据可备份'); return; }
-  const data = { app:'心屿·情绪手帖', version:'0.4', exportedAt:new Date().toISOString(), entries, breath_log:breathLog };
+  const data = { app:'心屿·情绪手帖', version:'0.5', exportedAt:new Date().toISOString(), entries, breath_log:breathLog };
   download(`心屿备份-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(data,null,2), 'application/json');
-  toast('备份已收入下载');
+  toast('备份文件已下载');
 }
 
 /* ================= 云屿（可选云同步 · v0.4） =================
@@ -1480,7 +1533,7 @@ function maskEmail(em){
 }
 function updateCloudStatus(s){
   const el = document.getElementById('cloudStatus');
-  if(el) el.innerHTML = `已登船 · <b>${maskEmail(cloudEmailOf())}</b><br>${s}`;
+  if(el) el.innerHTML = `已登录 · <b>${maskEmail(cloudEmailOf())}</b><br>${s}`;
 }
 function renderCloudUI(){
   const off = document.getElementById('cloudOff');
@@ -1490,8 +1543,8 @@ function renderCloudUI(){
   un.hidden = true;
   off.hidden = !!cloudUser;
   on.hidden = !cloudUser;
-  document.getElementById('cloudHint').textContent = cloudUser ? '已登船 · 数据两端随行' : '可选 · 不登船也照常记';
-  if(cloudUser) updateCloudStatus('待同渡');
+  document.getElementById('cloudHint').textContent = cloudUser ? '已登录 · 多设备自动同步' : '不登录也能正常使用';
+  if(cloudUser) updateCloudStatus('待同步');
 }
 
 async function cloudSession(){
@@ -1505,7 +1558,7 @@ async function cloudInit(){
   const s = await cloudSession();
   cloudUser = s && s.user ? s.user : null;
   renderCloudUI();
-  if(cloudUser) syncAll('靠岸');
+  if(cloudUser) syncAll('恢复会话');
 }
 
 let pendingEmailOtp = null;
@@ -1522,26 +1575,27 @@ function cloudEmailOf(){ return localStorage.getItem('xinyu_cloud_email') || '';
 async function cloudSendCode(){
   if(!cloud) return;
   const email = document.getElementById('cloudEmail').value.trim().toLowerCase();
-  if(!/^\S+@\S+\.\S+$/.test(email)){ toast('先留下一个邮箱'); return; }
+  if(!/^\S+@\S+\.\S+$/.test(email)){ toast('请输入正确的邮箱地址'); return; }
   const btn = document.getElementById('cloudSendBtn');
-  btn.disabled = true; btn.textContent = '潮信寄送中…';
+  btn.disabled = true; btn.textContent = '发送中…';
   let sent;
   try{ sent = await cloud.auth.sendOtp({ email }); }
   catch(e){ sent = { error: e }; }
-  btn.disabled = false; btn.textContent = '寄出潮信';
-  if(!sent || sent.error){ toast('潮信寄出未成，稍后再试'); return; }
+  btn.disabled = false; btn.textContent = '发送验证码';
+  if(!sent || sent.error){ toast('发送失败，请稍后再试'); return; }
   pendingEmailOtp = { email, verificationId: sent.data.verificationId, isExistingUser: sent.data.isExistingUser };
   document.getElementById('cloudLoginBtn').disabled = false;
   document.getElementById('cloudCode').focus();
-  toast('潮信已寄出，去邮箱看看');
+  toast('验证码已发送，请查收邮箱');
 }
 async function cloudLogin(){
   if(!cloud) return;
-  if(!pendingEmailOtp){ toast('先寄出一封潮信'); return; }
+  if(!pendingEmailOtp){ toast('请先发送验证码'); return; }
   const code = document.getElementById('cloudCode').value.trim();
-  if(!code){ toast('先填入收到的潮信'); return; }
+  if(!code){ toast('请输入收到的验证码'); return; }
+  const loginEmail = pendingEmailOtp.email;
   const btn = document.getElementById('cloudLoginBtn');
-  btn.disabled = true; btn.textContent = '登船中…';
+  btn.disabled = true; btn.textContent = '登录中…';
   let done;
   try{
     if(!pendingEmailOtp.isExistingUser && !localStorage.getItem(PWKEY)) localStorage.setItem(PWKEY, genCloudPw());
@@ -1553,24 +1607,24 @@ async function cloudLogin(){
       password: pendingEmailOtp.isExistingUser ? undefined : localStorage.getItem(PWKEY)
     });
   }catch(e){ done = { error: e }; }
-  btn.disabled = false; btn.textContent = '凭信登船';
-  if(!done || done.error){ toast('登船未成：潮信可能已过期，请重寄一封'); pendingEmailOtp = null; document.getElementById('cloudLoginBtn').disabled = true; return; }
+  btn.disabled = false; btn.textContent = '登录';
+  if(!done || done.error){ toast('登录失败：验证码可能已过期，请重新发送'); pendingEmailOtp = null; document.getElementById('cloudLoginBtn').disabled = true; return; }
   pendingEmailOtp = null;
   cloudUser = done.data.user;
-  localStorage.setItem('xinyu_cloud_email', document.getElementById('cloudEmail').value.trim().toLowerCase());
+  localStorage.setItem('xinyu_cloud_email', loginEmail);
   document.getElementById('cloudCode').value = '';
   renderCloudUI();
-  await syncAll('登船');
-  toast('已登船 · 手帖开始随行');
+  await syncAll('登录');
+  toast('登录成功，记录将自动同步');
 }
 async function cloudLogout(){
   if(!cloud) return;
   try{ await cloud.auth.signOut(); }catch(e){}
   cloudUser = null;
   renderCloudUI();
-  toast('已离船 · 记录都留在这台设备');
+  toast('已退出登录，记录仍保留在本机');
 }
-function cloudSyncNow(){ if(cloudUser) syncAll('手动同渡'); }
+function cloudSyncNow(){ if(cloudUser) syncAll('手动同步'); }
 
 function entryToRow(e){
   const r = { entry_id: e.id, cat: e.cat, tag: e.tag, intensity: e.intensity, triggers: e.triggers || [], note: e.note || '', ts: e.ts };
@@ -1582,12 +1636,12 @@ function rowToEntry(r){
   if(r.cat2){ e.cat2 = r.cat2; e.tag2 = r.tag2; }
   return e;
 }
-const breathKeyOf = (b) => `${b.ts}:${b.before ?? ''}:${b.after ?? ''}`;
+const breathKeyOf = (b) => String(b.ts);
 
 async function syncAll(reason){
   if(!cloud || !cloudUser || cloudSyncing) return;
   cloudSyncing = true;
-  updateCloudStatus(`同渡中（${reason}）…`);
+  updateCloudStatus(`同步中（${reason}）…`);
   let failed = false;
   try{
     const pend = loadPending();
@@ -1635,13 +1689,13 @@ async function syncAll(reason){
       }
     }
     if(failed){
-      updateCloudStatus('这一程同渡没有走完 · 稍后点「此刻同渡」再试');
+      updateCloudStatus('本次同步未完成 · 稍后点「立即同步」重试');
     }else{
       if(typeof renderAll === 'function') renderAll();
-      updateCloudStatus(`上次同渡 ${new Date().toLocaleTimeString('zh-CN',{hour12:false})}`);
+      updateCloudStatus(`上次同步 ${new Date().toLocaleTimeString('zh-CN',{hour12:false})}`);
     }
   }catch(e){
-    updateCloudStatus('这一程同渡没有走完 · 稍后点「此刻同渡」再试');
+    updateCloudStatus('本次同步未完成 · 稍后点「立即同步」重试');
   }
   cloudSyncing = false;
 }
@@ -1670,10 +1724,10 @@ function renderDeep(){
 async function deepLetter(){
   if(!cloud) return;
   const week = entries.filter(e=> e.ts >= Date.now() - 7*864e5);
-  if(week.length < 3){ toast('这一周的潮讯还太少，先记满三笔'); return; }
+  if(week.length < 3){ toast('本周记录还太少，记满 3 笔后再试'); return; }
   const btn = document.getElementById('deepBtn');
   const box = document.getElementById('deepLetter');
-  btn.disabled = true; btn.textContent = '海正在回信…';
+  btn.disabled = true; btn.textContent = '生成中，约需 1-2 分钟…';
   const c = {}, tc = {}, bk = {晨:0,昼:0,暮:0,夜:0};
   let itSum = 0;
   week.forEach(e=>{
@@ -1691,7 +1745,7 @@ async function deepLetter(){
     平均强度: Math.round(itSum / week.length * 10) / 10
   };
   box.hidden = false;
-  box.textContent = '潮水正在汇聚，请稍候…';
+  box.textContent = 'AI 正在生成小结（约 1-2 分钟），请稍候…';
   try{
     const models = await cloud.llm.models.list();
     const model = (models || []).find(m=> m.disabled !== true);
@@ -1714,13 +1768,13 @@ async function deepLetter(){
       box.textContent = answer.trim();
     }else{
       box.hidden = true;
-      toast('海这次没说出什么，稍后再试');
+      toast('生成失败，请稍后再试');
     }
   }catch(e){
     box.hidden = true;
-    toast('海此刻说不上话 · 稍后再试');
+    toast('生成失败，请稍后再试');
   }
-  btn.disabled = false; btn.textContent = '深读 · 让海多说几句';
+  btn.disabled = false; btn.textContent = '生成 AI 深度小结';
 }
 
 /* ================= 望月呼吸 ================= */
@@ -1743,22 +1797,28 @@ let breathTimer = null;
     box.appendChild(b);
   });
 })();
+let breathSession = null; // 本轮练习的时间戳：反馈只记一条，重复选择只更新
 function pickFb(v, btn){
   document.querySelectorAll('#fbOpts button').forEach(x=> x.classList.remove('on'));
   btn.classList.add('on');
-  breathLog.push({ts: Date.now(), before: breathBefore, after: v});
+  const last = breathLog[breathLog.length - 1];
+  if(breathSession && last && last.ts === breathSession){
+    last.after = v; // 同一轮练习内改选：更新而非新增
+  }else{
+    if(!breathSession) breathSession = Date.now();
+    breathLog.push({ts: breathSession, before: breathBefore, after: v});
+  }
   saveBlog(breathLog);
   if(cloudUser) syncAll('呼吸');
   const res = document.getElementById('fbRes');
   if(breathBefore){
     const d = breathBefore - v;
-    res.textContent = d > 0 ? `${WAVES[breathBefore]} → ${WAVES[v]} · 潮退${d<=5 ? CN[d-1] : d}级，海记下了`
-                 : d < 0 ? `${WAVES[breathBefore]} → ${WAVES[v]} · 浪还在涌，再坐一会儿也无妨`
-                 : '潮位未变，但停下来的一分钟已是照看';
+    res.textContent = d > 0 ? `强度从「${WAVES[breathBefore]}」降到「${WAVES[v]}」，已记录`
+                 : d < 0 ? `强度还在「${WAVES[v]}」，再坐一会儿也无妨`
+                 : '强度没变，但停下来的一分钟已是照顾';
   }else{
-    res.textContent = '已记下 · 从建议卡进入练习，海还能帮你对比练前练后';
+    res.textContent = '已记录 · 从记录页的建议卡进入练习，还能自动对比练前强度';
   }
-  breathBefore = null;
   renderAnaBreath();
 }
 function openBreath(fromSuggest){
@@ -1766,13 +1826,14 @@ function openBreath(fromSuggest){
   ov.hidden = false;
   requestAnimationFrame(()=> ov.classList.add('show'));
   document.getElementById('moon').style.transform = 'scale(1)';
-  document.getElementById('moonText').textContent = '候月';
+  document.getElementById('moonText').textContent = '准备';
   document.getElementById('breathFb').hidden = true;
   document.getElementById('fbRes').textContent = '';
   document.querySelectorAll('#fbOpts button').forEach(x=> x.classList.remove('on'));
   document.getElementById('breathActs').hidden = false;
   breathBefore = fromSuggest ? pendingBefore : null;
   pendingBefore = null;
+  breathSession = null;
 }
 function closeBreath(){
   const ov = document.getElementById('breathOverlay');
@@ -1800,8 +1861,8 @@ function startBreath(){
       if(round > TOTAL){
         moon.style.transition = 'transform 2s cubic-bezier(.45,0,.35,1)';
         moon.style.transform = 'scale(1)';
-        text.textContent = '月满';
-        stat.textContent = '潮已平 · 感受一下此刻的自己';
+        text.textContent = '完成';
+        stat.textContent = '练习完成 · 感受一下此刻的自己';
         breathTimer = null;
         document.getElementById('breathStart').textContent = '再来一轮';
         document.getElementById('breathFb').hidden = false;
@@ -1818,6 +1879,83 @@ function startBreath(){
   }
   run(0);
 }
+
+/* ================= 新手引导（首次打开自动出现，可重看） ================= */
+const OKEY = 'xinyu_onboarded';
+const TOUR_STEPS = [
+  { sel:null, title:'欢迎来到心屿',
+    text:'这是一个安静的情绪记录工具：选情绪、标强度、写一句话，30 秒记一笔。没有打卡、没有社交，数据只保存在你自己的设备上。接下来用 8 步带你认识它。' },
+  { sel:'#emoAcc .emo-cat', title:'第一步 · 选择情绪',
+    text:'点开一个分类，选 1 个最贴近的标签。如果情绪是混合的，可以再选第 2 个作为「相伴情绪」——比如「焦虑」伴着「疲惫」。' },
+  { sel:'#ruler', title:'第二步 · 标记强度',
+    text:'点选或拖动浪峰，给此刻的情绪一个强度：1 是轻微，5 是强烈。' },
+  { sel:'#trigChips', title:'第三步 · 起因和备注（可不填）',
+    text:'选一下是什么引起的，再写一句话备注。都可以跳过——只选情绪也能保存。' },
+  { sel:'#saveBtn', title:'第四步 · 保存',
+    text:'点这里，一条记录就完成了。如果记录的负向情绪强度很高，保存后会弹出呼吸练习的建议卡。' },
+  { sel:'.tabbar', title:'三个页面', pos:'top',
+    text:'「记录」写日记；「分析」看每周小结、趋势曲线、诱因统计和呼吸效果；「回顾」用日历翻旧记录，也能按关键词搜索。' },
+  { sel:'.breath-link', title:'呼吸练习', pos:'top',
+    text:'情绪上来的时候，跟着月亮做 4-7-8 呼吸，约一分钟。练完选一下当下的强度，「分析」页会帮你统计练习效果。' },
+  { sel:'.night-toggle', title:'两个补充', pos:'top',
+    text:'右上角可以切换深色「夜航」模式；数据默认只存在本机，想换设备可在「分析」页底部开通邮箱云同步。现在就试着记第一笔吧。' }
+];
+let tourIdx = 0;
+function startTour(manual){
+  switchTab('record');
+  tourIdx = 0;
+  document.getElementById('tour').hidden = false;
+  document.getElementById('tourDots').innerHTML = TOUR_STEPS.map(()=>'<i></i>').join('');
+  placeTour();
+}
+function endTour(){
+  document.getElementById('tour').hidden = true;
+  try{ localStorage.setItem(OKEY, '1'); }catch(e){}
+}
+function nextTour(){
+  if(tourIdx >= TOUR_STEPS.length - 1){ endTour(); return; }
+  tourIdx++;
+  placeTour();
+}
+function placeTour(){
+  const st = TOUR_STEPS[tourIdx];
+  const spot = document.getElementById('tourSpot');
+  const card = document.getElementById('tourCard');
+  document.getElementById('tourStep').textContent = `${tourIdx+1} / ${TOUR_STEPS.length}`;
+  document.getElementById('tourTitle').textContent = st.title;
+  document.getElementById('tourText').textContent = st.text;
+  document.getElementById('tourNext').textContent = tourIdx === TOUR_STEPS.length - 1 ? '开始记录' : '下一步';
+  document.querySelectorAll('#tourDots i').forEach((d,i)=> d.classList.toggle('on', i === tourIdx));
+  if(!st.sel){
+    spot.style.display = 'none';
+    card.style.top = '50%';
+    card.style.transform = 'translate(-50%,-50%)';
+    return;
+  }
+  const el = document.querySelector(st.sel);
+  if(!el){ nextTour(); return; }
+  card.style.transform = 'translateX(-50%)';
+  const r0 = el.getBoundingClientRect();
+  const targetY = window.scrollY + r0.top - Math.max(96, (window.innerHeight - r0.height)/2);
+  window.scrollTo(0, Math.max(0, targetY));
+  const r = el.getBoundingClientRect();
+  const pad = 6;
+  spot.style.display = 'block';
+  spot.style.left = (r.left - pad) + 'px';
+  spot.style.top = (r.top - pad) + 'px';
+  spot.style.width = (r.width + pad*2) + 'px';
+  spot.style.height = (r.height + pad*2) + 'px';
+  const ch = card.offsetHeight || 200;
+  let top;
+  if(st.pos === 'top' || r.bottom + 16 + ch > window.innerHeight - 88){
+    top = r.top - ch - 16;
+    if(top < 10) top = Math.min(r.bottom + 16, window.innerHeight - ch - 92);
+  }else{
+    top = r.bottom + 16;
+  }
+  card.style.top = Math.max(10, Math.min(top, window.innerHeight - ch - 92)) + 'px';
+}
+addEventListener('resize', ()=>{ if(!document.getElementById('tour').hidden) placeTour(); });
 
 /* ================= Tab & 通用 ================= */
 function switchTab(t){
@@ -1853,6 +1991,7 @@ function observeRise(){
 }
 
 initAcc(); initTrigs(); setIntensity(3); renderAll(); observeRise(); cloudInit();
+if(!localStorage.getItem(OKEY)) setTimeout(()=> startTour(), 700);
 </script>
 </body>
 </html>
